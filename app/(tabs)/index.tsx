@@ -12,6 +12,7 @@ const colors = {
   textDark: '#402e32', // Marrom escuro
 };
 
+// Dados de exemplo para cervejas em destaque
 const featuredBeers = [
   {
     id: 1,
@@ -43,6 +44,7 @@ const featuredBeers = [
   },
 ];
 
+// Dados de exemplo para promoções
 const promotions = [
   {
     id: 1,
@@ -58,6 +60,7 @@ const promotions = [
   },
 ];
 
+// Dados de exemplo para as cervejas mais vendidas
 const bestSellers = [
   {
     id: 1,
@@ -84,12 +87,21 @@ const bestSellers = [
 
 const HomeScreen = () => {
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
+      {/* Imagem de fundo */}
+      <Image
+        source={{
+          uri: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
+        }}
+        style={styles.backgroundImage}
+      />
+      {/* Sobreposição */}
+      <View style={styles.overlay} />
       <FlatList
         data={[]}
         ListHeaderComponent={
           <ThemedView style={styles.innerContainer}>
-            {/* Seção: Cervejas em Destaque */}
+            {/* Seções */}
             <ThemedText type="title" style={styles.title}>Cervejas em Destaque</ThemedText>
             <FlatList
               horizontal
@@ -98,15 +110,14 @@ const HomeScreen = () => {
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.beerCard}>
                   <Image source={{ uri: item.image }} style={styles.beerImage} />
-                  <ThemedText type="default" style={styles.beerName}>{item.name}</ThemedText>
-                  <ThemedText type="subtitle" style={styles.beerType}>{item.type}</ThemedText>
-                  <ThemedText type="default" style={styles.beerPrice}>{item.price}</ThemedText>
+                  <ThemedText style={styles.beerName}>{item.name}</ThemedText>
+                  <ThemedText style={styles.beerType}>{item.type}</ThemedText>
+                  <ThemedText style={styles.beerPrice}>{item.price}</ThemedText>
                 </TouchableOpacity>
               )}
               contentContainerStyle={styles.beerList}
             />
 
-            {/* Seção: Promoções */}
             <ThemedText type="title" style={styles.sectionTitle}>Promoções</ThemedText>
             <FlatList
               data={promotions}
@@ -115,29 +126,12 @@ const HomeScreen = () => {
                 <TouchableOpacity style={styles.promotionCard}>
                   <Image source={{ uri: item.image }} style={styles.promotionImage} />
                   <View style={styles.promotionTextContainer}>
-                    <ThemedText type="defaultSemiBold" style={styles.promotionTitle}>{item.title}</ThemedText>
-                    <ThemedText type="default" style={styles.promotionDescription}>{item.description}</ThemedText>
+                    <ThemedText style={styles.promotionTitle}>{item.title}</ThemedText>
+                    <ThemedText style={styles.promotionDescription}>{item.description}</ThemedText>
                   </View>
                 </TouchableOpacity>
               )}
               contentContainerStyle={styles.promotionList}
-            />
-
-            {/* Seção: Mais Vendidas */}
-            <ThemedText type="title" style={styles.sectionTitle}>Mais Vendidas</ThemedText>
-            <FlatList
-              horizontal
-              data={bestSellers}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.beerCard}>
-                  <Image source={{ uri: item.image }} style={styles.beerImage} />
-                  <ThemedText type="default" style={styles.beerName}>{item.name}</ThemedText>
-                  <ThemedText type="subtitle" style={styles.beerType}>{item.type}</ThemedText>
-                  <ThemedText type="default" style={styles.beerPrice}>{item.price}</ThemedText>
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={styles.beerList}
             />
           </ThemedView>
         }
@@ -150,69 +144,75 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background, // Fundo bege claro
+    backgroundColor: colors.background,
+  },
+  backgroundImage: {
+    flex: 1,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 248, 236, 0.85)', // Sobreposição translúcida
   },
   innerContainer: {
-    flex: 1,
     padding: 16,
+    backgroundColor: colors.background,
+    borderRadius: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    color: colors.textDark,
     marginBottom: 16,
-    color: colors.textDark, // Texto marrom escuro
   },
   beerList: {
     paddingBottom: 16,
   },
   beerCard: {
-    width: 150,
-    marginRight: 16,
+    width: 160,
+    marginRight: 12,
+    backgroundColor: '#f7e4d4',
+    borderRadius: 12,
     alignItems: 'center',
-    backgroundColor: colors.secondary, // Fundo marrom claro
-    borderRadius: 8,
-    padding: 8,
+    padding: 12,
   },
   beerImage: {
-    width: 120,
-    height: 120,
+    width: 130,
+    height: 130,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   beerName: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.textDark,
     textAlign: 'center',
-    color: colors.textDark, // Texto marrom escuro
   },
   beerType: {
     fontSize: 14,
-    color: colors.textDark, // Texto marrom escuro
+    color: '#6d5d58',
     textAlign: 'center',
+    marginVertical: 4,
   },
   beerPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary, // Texto laranja
+    color: colors.primary,
     textAlign: 'center',
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginTop: 24,
-    marginBottom: 16,
-    color: colors.textDark, // Texto marrom escuro
-  },
-  promotionList: {
-    paddingBottom: 16,
+    color: colors.textDark,
+    marginVertical: 20,
   },
   promotionCard: {
     flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: '#ead8c3',
+    borderRadius: 12,
     marginBottom: 16,
-    backgroundColor: colors.secondary, // Fundo marrom claro
-    borderRadius: 8,
-    overflow: 'hidden',
   },
   promotionImage: {
     width: 100,
@@ -225,12 +225,12 @@ const styles = StyleSheet.create({
   promotionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: colors.textDark,
     marginBottom: 8,
-    color: colors.textDark, // Texto marrom escuro
   },
   promotionDescription: {
     fontSize: 14,
-    color: colors.textDark, // Texto marrom escuro
+    color: '#6d5d58',
   },
 });
 
