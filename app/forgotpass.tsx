@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 
-export default function Login() {
+const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Lógica de autenticação aqui
-    console.log('Email:', email, 'Password:', password);
+  const handlePasswordReset = () => {
+    // Lógica para enviar instruções de redefinição de senha
+    console.log('E-mail para redefinição de senha enviado para:', email);
+    alert('Se o e-mail estiver cadastrado, você receberá instruções para redefinir a senha.');
   };
 
   return (
@@ -18,8 +18,10 @@ export default function Login() {
         }}
         style={styles.image}
       />
-      <Text style={styles.title}>Bem-vindo de volta!</Text>
-      <Text style={styles.subtitle}>Faça login para continuar</Text>
+      <Text style={styles.title}>Esqueceu sua senha?</Text>
+      <Text style={styles.subtitle}>
+        Insira seu e-mail cadastrado e enviaremos instruções para redefinir sua senha.
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -31,25 +33,12 @@ export default function Login() {
         autoCapitalize="none"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Digite sua senha"
-        placeholderTextColor="#aaa"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      <TouchableOpacity style={styles.button} onPress={handlePasswordReset}>
+        <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-        <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.registerText}>Não tem uma conta? Cadastre-se</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Text style={styles.backToLoginText}>Voltar para o login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -69,15 +58,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#de9606', // Laranja
-    marginBottom: 4,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#6d5d58', // Marrom suave
+    textAlign: 'center',
     marginBottom: 20,
+    lineHeight: 22,
   },
   input: {
     width: '100%',
@@ -108,16 +100,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: '#6d5d58',
-    marginTop: 8,
-    textDecorationLine: 'underline',
-    marginBottom: 16,
-  },
-  registerText: {
+  backToLoginText: {
     fontSize: 14,
     color: '#de9606',
     textDecorationLine: 'underline',
+    marginTop: 16,
   },
 });
+
+export default ForgotPasswordScreen;
