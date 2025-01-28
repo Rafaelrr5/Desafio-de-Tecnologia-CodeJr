@@ -1,7 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { useNavigation } from 'expo-router';
 
-const adminHub = ({ navigation }) => {
+const AdminHub = () => {
+  const navigation = useNavigation(); // Adiciona a navegação
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gerenciamento da Administração</Text>
@@ -10,7 +13,7 @@ const adminHub = ({ navigation }) => {
         {/* Gerenciar Cervejas */}
         <TouchableOpacity
           style={styles.optionCard}
-          onPress={() => navigation.navigate('BeerManagement')}
+          onPress={() => navigation.navigate('BeerManagement')} // Navega para a tela
         >
           <Image
             source={{ uri: 'https://cdn-icons-png.flaticon.com/512/174/174751.png' }}
@@ -22,7 +25,7 @@ const adminHub = ({ navigation }) => {
         {/* Gerenciar Promoções */}
         <TouchableOpacity
           style={styles.optionCard}
-          onPress={() => navigation.navigate('PromotionManagement')}
+          onPress={() => navigation.navigate('PromotionManagement')} // Navega para a tela
         >
           <Image
             source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3792/3792096.png' }}
@@ -34,7 +37,7 @@ const adminHub = ({ navigation }) => {
         {/* Configurações */}
         <TouchableOpacity
           style={styles.optionCard}
-          onPress={() => navigation.navigate('Settings')}
+          onPress={() => navigation.navigate('Settings')} // Navega para a tela
         >
           <Image
             source={{ uri: 'https://cdn-icons-png.flaticon.com/512/126/126472.png' }}
@@ -90,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default adminHub;
+export default AdminHub;

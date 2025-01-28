@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
-
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
@@ -33,17 +32,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-      {/* Tela Explore */}
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
       {/* Tela Login */}
       <Tabs.Screen
-        name="login"
+        name="Login"
         options={{
           title: 'Login',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
@@ -51,7 +42,7 @@ export default function TabLayout() {
       />
       {/* Tela Gerenciamento */}
       <Tabs.Screen
-        name="management"
+        name="AdminHub"
         options={{
           title: 'Gerenciamento',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
@@ -59,7 +50,7 @@ export default function TabLayout() {
       />
       {/* Tela Contato */}
       <Tabs.Screen
-        name="contact"
+        name="Contact"
         options={{
           title: 'Contato',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="phone.fill" color={color} />,
