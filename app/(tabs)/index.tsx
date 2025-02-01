@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, View } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { router } from 'expo-router';
 
 // Cores da paleta
 const colors = {
@@ -108,7 +109,13 @@ const HomeScreen = () => {
               data={featuredBeers}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <TouchableOpacity style={styles.beerCard}>
+                <TouchableOpacity 
+                  style={styles.beerCard}
+                  onPress={() => router.push({
+                    pathname: "/BeerDetailsModal",
+                    params: { id: item.id }
+                  })}
+                >
                   <Image source={{ uri: item.image }} style={styles.beerImage} />
                   <ThemedText style={styles.beerName}>{item.name}</ThemedText>
                   <ThemedText style={styles.beerType}>{item.type}</ThemedText>
@@ -227,6 +234,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textDark,
     marginBottom: 8,
+  },
+  promotionList: {
+    paddingBottom: 16,
   },
   promotionDescription: {
     fontSize: 14,
