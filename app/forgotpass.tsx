@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const ForgotPasswordScreen = ({ navigation }) => {
+const ForgotPasswordScreen = ({ }) => {
   const [email, setEmail] = useState('');
+  const navigation = useNavigation(); // Adiciona a navegação
 
   const handlePasswordReset = () => {
     // Lógica para enviar instruções de redefinição de senha
@@ -37,7 +39,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={() => navigation.navigate('./(tabs)/Login')}>
         <Text style={styles.backToLoginText}>Voltar para o login</Text>
       </TouchableOpacity>
     </View>
