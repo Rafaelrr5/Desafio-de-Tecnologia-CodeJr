@@ -1,47 +1,90 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { supabase } from '../lib/supabase';
+import { Beer } from '../types/beer';
 
-interface Beer {
-  id: number;
-  name: string;
-  type: string;
-  description: string;
-  alcohol: number;
-  price: number;
-  ibu: number;
-  temperature: number;
-  color: string;
-  brewery: string;
-  volume: number;
-  image: string;
-}
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const DISMISS_THRESHOLD = SCREEN_HEIGHT * 0.3;
 
-const mockBeers: Record<number, Beer> = {
-  1: {
-    id: 1,
-    name: 'IPA',
-    type: 'India Pale Ale',
-    description: 'Cerveja artesanal com notas cítricas e tropicais',
-    alcohol: 6.2,
-    price: 15.00,
-    ibu: 65,
-    temperature: 5,
-    color: 'Âmbar - 12 EBC',
-    brewery: 'Cervejaria Artesanal Bros',
-    volume: 500,
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  // ... adicione outros objetos de cerveja aqui
-};
+const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=';
 
 export default function BeerDetailsModal() {
   const params = useLocalSearchParams();
-  const beerId = Number(params.id);
-  const beer = mockBeers[beerId];
+  const beerId = params.id as string; // Changed from Number(params.id)
+  const [beer, setBeer] = useState<Beer | null>(null);
+  const [loading, setLoading] = useState(true);
+  const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    async function loadBeer() {
+      if (!beerId) {
+        console.error('No beer ID provided');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        console.log('Fetching beer with ID:', beerId); // Debug log
+        const { data, error } = await supabase
+          .from('beers')
+          .select('*')
+          .eq('id', beerId)
+          .single();
+          
+        console.log('Supabase response:', { data, error }); // Debug log
+          
+        if (error) throw error;
+        if (!data) {
+          console.log('No data found for beer ID:', beerId); // Debug log
+          return;
+        }
+        
+        console.log('Beer image URL:', data.image); // Debug log
+        setBeer({
+          ...data,
+          image: data.image || DEFAULT_BEER_IMAGE // Ensure there's always an image
+        });
+      } catch (error) {
+        console.error('Error loading beer:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBeer();
+  }, [beerId]);
+
+  const gesture = Gesture.Pan()
+    .onUpdate((event) => {
+      if (event.translationY > 0) {
+        translateY.value = event.translationY;
+      }
+    })
+    .onEnd((event) => {
+      if (event.translationY > DISMISS_THRESHOLD) {
+        router.back();
+      } else {
+        translateY.value = withSpring(0);
+      }
+    })
+    .simultaneousWithExternalGesture(Gesture.Native());  // Allow simultaneous scrolling
+
+  const rStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text>Carregando...</Text>
+      </SafeAreaView>
+    );
+  }
 
   if (!beer) {
     return (
@@ -53,38 +96,55 @@ export default function BeerDetailsModal() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <TouchableOpacity 
-          style={styles.closeButton} 
-          onPress={() => router.back()}
-        >
-          <Ionicons name="close" size={24} color="#6A3805" />
-        </TouchableOpacity>
+      <GestureDetector gesture={gesture}>
+        <Animated.View style={[styles.container, rStyle]}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={() => router.back()}
+          >
+            <Ionicons name="close" size={24} color="#6A3805" />
+          </TouchableOpacity>
 
-        <Image source={{ uri: beer.image }} style={styles.beerImage} />
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+            bounces={false}
+            scrollEventThrottle={16}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+          >
+            <Image 
+              source={{ 
+                uri: beer.image || DEFAULT_BEER_IMAGE,
+                cache: 'reload'
+              }} 
+              style={styles.beerImage}
+              onError={(e) => console.log('Image loading error:', e.nativeEvent.error)}
+            />
         
-        <View style={styles.content}>
-          <Text style={styles.title}>{beer.name}</Text>
-          <Text style={styles.type}>{beer.type}</Text>
-          <Text style={styles.description}>{beer.description}</Text>
+            <View style={styles.content}>
+              <Text style={styles.title}>{beer.name}</Text>
+              <Text style={styles.type}>{beer.type}</Text>
+              <Text style={styles.description}>{beer.description}</Text>
 
-          <View style={styles.detailsGrid}>
-            <DetailItem label="Teor Alcoólico" value={`${beer.alcohol}%`} />
-            <DetailItem label="IBU" value={beer.ibu.toString()} />
-            <DetailItem label="Temperatura" value={`${beer.temperature}°C`} />
-            <DetailItem label="Volume" value={`${beer.volume}ml`} />
-            <DetailItem label="Cor" value={beer.color} />
-            <DetailItem label="Cervejaria" value={beer.brewery} />
-          </View>
+              <View style={styles.detailsGrid}>
+                <DetailItem label="Teor Alcoólico" value={`${beer.alcohol}%`} />
+                <DetailItem label="IBU" value={beer.ibu.toString()} />
+                <DetailItem label="Temperatura" value={`${beer.temperature}°C`} />
+                <DetailItem label="Volume" value={`${beer.volume}ml`} />
+                <DetailItem label="Cor" value={beer.color} />
+                <DetailItem label="Cervejaria" value={beer.brewery} />
+              </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.price}>R$ {beer.price.toFixed(2)}</Text>
-            <TouchableOpacity style={styles.addToCartButton}>
-              <Text style={styles.addToCartText}>Adicionar ao Carrinho</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+              <View style={styles.footer}>
+                <Text style={styles.price}>R$ {beer.price.toFixed(2)}</Text>
+                <TouchableOpacity style={styles.addToCartButton}>
+                  <Text style={styles.addToCartText}>Adicionar ao Carrinho</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </Animated.View>
+      </GestureDetector>
     </SafeAreaView>
   );
 }
@@ -103,6 +163,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: '#fff8ec',
+    position: 'relative',
   },
   closeButton: {
     position: 'absolute',
@@ -141,7 +203,6 @@ const styles = StyleSheet.create({
   detailsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 24,
   },
   detailItem: {
     width: '50%',
@@ -150,7 +211,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 12,
     color: '#6d5d58',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   detailValue: {
     fontSize: 14,
@@ -160,7 +221,6 @@ const styles = StyleSheet.create({
   footer: {
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    paddingTop: 16,
     marginTop: 16,
   },
   price: {
@@ -179,5 +239,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 });

@@ -1,28 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
+import { supabase } from '../../lib/supabase';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: '1',
-      name: 'IPA',
-      description: 'India Pale Ale',
-      price: 15.0,
-      quantity: 2,
-      image: 'https://cdn-icons-png.flaticon.com/512/174/174751.png',
-    },
-    {
-      id: '2',
-      name: 'Stout',
-      description: 'Stout',
-      price: 18.0,
-      quantity: 1,
-      image: 'https://cdn-icons-png.flaticon.com/512/174/174751.png',
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const removeItem = (id: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
+
+  const fetchCartItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cart_items')
+        .select('*, beers(*)') // assumindo que existe uma relação com a tabela beers
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (error) throw error;
+      setCartItems(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar itens do carrinho:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removeItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setCartItems(cartItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Erro ao remover item:', error);
+    }
   };
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);

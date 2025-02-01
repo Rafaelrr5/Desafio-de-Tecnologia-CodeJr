@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Link, router } from 'expo-router';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Link } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 const AdminHub = () => {
   return (
@@ -10,30 +11,21 @@ const AdminHub = () => {
       <ScrollView style={styles.optionsContainer}>
         <Link href="/BeerManagement" asChild>
           <TouchableOpacity style={styles.optionCard}>
-            <Image
-              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/174/174751.png' }}
-              style={styles.icon}
-            />
+            <Ionicons name="beer-outline" size={28} color="#333" style={styles.icon} />
             <Text style={styles.optionText}>Gerenciar Cervejas</Text>
           </TouchableOpacity>
         </Link>
 
         <Link href="/PromotionManagement" asChild>
           <TouchableOpacity style={styles.optionCard}>
-            <Image
-              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3792/3792096.png' }}
-              style={styles.icon}
-            />
+            <Ionicons name="cash-outline" size={28} color="#333" style={styles.icon} />
             <Text style={styles.optionText}>Gerenciar Promoções</Text>
           </TouchableOpacity>
         </Link>
 
         <Link href="/Settings" asChild>
           <TouchableOpacity style={styles.optionCard}>
-            <Image
-              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/126/126472.png' }}
-              style={styles.icon}
-            />
+            <Ionicons name="settings-outline" size={28} color="#333" style={styles.icon} />
             <Text style={styles.optionText}>Configurações</Text>
           </TouchableOpacity>
         </Link>
@@ -75,8 +67,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   icon: {
-    width: 40,
-    height: 40,
     marginRight: 15,
   },
   optionText: {

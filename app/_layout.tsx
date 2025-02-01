@@ -8,6 +8,9 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { supabase } from '@/lib/supabase';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,29 +32,37 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)"/>
-            <Stack.Screen name="+not-found" />
-            <Stack.Screen name="forgotpass" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="Settings" />
-            <Stack.Screen name="PromotionManagement" />
-            <Stack.Screen name="BeerManagement" />
-            <Stack.Screen 
-              name="BeerDetailsModal" 
-              options={{
-                presentation: 'modal',
-                headerShown: false,
-                animation: 'slide_from_bottom',
-              }} 
-            />
-          </Stack>
-        </SafeAreaProvider>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </SessionContextProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <SafeAreaProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)"/>
+              <Stack.Screen name="+not-found" />
+              <Stack.Screen name="forgotpass" />
+              <Stack.Screen name="register" />
+              <Stack.Screen name="Settings" />
+              <Stack.Screen name="PromotionManagement" />
+              <Stack.Screen name="BeerManagement" />
+              <Stack.Screen 
+                name="BeerDetailsModal" 
+                options={{
+                  presentation: 'modal',
+                  headerShown: false,
+                  animation: 'slide_from_bottom',
+                }} 
+              />
+            </Stack>
+          </SafeAreaProvider>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </SessionContextProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

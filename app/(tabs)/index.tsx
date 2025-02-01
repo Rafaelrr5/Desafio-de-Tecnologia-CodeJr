@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 
 // Cores da paleta
 const colors = {
@@ -13,87 +14,55 @@ const colors = {
   textDark: '#402e32', // Marrom escuro
 };
 
-// Dados de exemplo para cervejas em destaque
-const featuredBeers = [
-  {
-    id: 1,
-    name: 'IPA',
-    type: 'India Pale Ale',
-    price: 'R$ 15,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 2,
-    name: 'Stout',
-    type: 'Stout',
-    price: 'R$ 18,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 3,
-    name: 'Pilsen',
-    type: 'Pilsner',
-    price: 'R$ 12,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 4,
-    name: 'Weiss',
-    type: 'Trigo',
-    price: 'R$ 14,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-];
-
-// Dados de exemplo para promoções
-const promotions = [
-  {
-    id: 1,
-    title: 'Promoção de Verão',
-    description: 'Desconto de 20% em todas as cervejas artesanais!',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 2,
-    title: 'Happy Hour',
-    description: 'Todas as sextas-feiras, cervejas pela metade do preço!',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-];
-
-// Dados de exemplo para as cervejas mais vendidas
-const bestSellers = [
-  {
-    id: 1,
-    name: 'IPA Artesanal',
-    type: 'India Pale Ale',
-    price: 'R$ 16,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 2,
-    name: 'Stout Negra',
-    type: 'Stout',
-    price: 'R$ 19,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-  {
-    id: 3,
-    name: 'Pilsen Premium',
-    type: 'Pilsner',
-    price: 'R$ 13,00',
-    image: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-  },
-];
+const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=';
 
 const HomeScreen = () => {
+  const [featuredBeers, setFeaturedBeers] = useState([]);
+  const [promotions, setPromotions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        
+      let { data: beers, error } = await supabase
+        .from('beers')
+        .select('*')
+       
+        setFeaturedBeers(beers || []);
+
+        let { data: promotions, error: promotionsError } = await supabase
+          .from('promotions')
+          .select('*')
+         
+        if (promotionsError) throw promotionsError;
+        setPromotions(promotions || []);
+ 
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ThemedView style={styles.innerContainer}>
+          <ThemedText>Carregando...</ThemedText>
+        </ThemedView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Imagem de fundo */}
       <Image
-        source={{
-          uri: 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=',
-        }}
+        source={{ uri: DEFAULT_BEER_IMAGE }}
         style={styles.backgroundImage}
       />
       {/* Sobreposição */}
@@ -107,19 +76,27 @@ const HomeScreen = () => {
             <FlatList
               horizontal
               data={featuredBeers}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <TouchableOpacity 
                   style={styles.beerCard}
-                  onPress={() => router.push({
-                    pathname: "/BeerDetailsModal",
-                    params: { id: item.id }
-                  })}
+                  onPress={() => {
+                    console.log('Selected beer:', item); // Debug log
+                    router.push({
+                      pathname: "/BeerDetailsModal",
+                      params: { id: item.id }
+                    });
+                  }}
                 >
-                  <Image source={{ uri: item.image }} style={styles.beerImage} />
+                  <Image 
+                    source={{ uri: item.image || DEFAULT_BEER_IMAGE }} 
+                    style={styles.beerImage} 
+                  />
                   <ThemedText style={styles.beerName}>{item.name}</ThemedText>
                   <ThemedText style={styles.beerType}>{item.type}</ThemedText>
-                  <ThemedText style={styles.beerPrice}>{item.price}</ThemedText>
+                    <ThemedText style={styles.beerPrice}>
+                    R$ {item.price.toFixed(2).replace('.', ',')}
+                    </ThemedText>
                 </TouchableOpacity>
               )}
               contentContainerStyle={styles.beerList}
@@ -131,7 +108,10 @@ const HomeScreen = () => {
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.promotionCard}>
-                  <Image source={{ uri: item.image }} style={styles.promotionImage} />
+                  <Image 
+                    source={{ uri: item.image_url || 'https://default-image-url.com/placeholder.jpg' }} 
+                    style={styles.promotionImage} 
+                  />
                   <View style={styles.promotionTextContainer}>
                     <ThemedText style={styles.promotionTitle}>{item.title}</ThemedText>
                     <ThemedText style={styles.promotionDescription}>{item.description}</ThemedText>
