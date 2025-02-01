@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const BeerManagementScreen = () => {
+const BeerManagement = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Gerenciar Cervejas</Text>
+      <Text style={styles.title}>Gerenciamento de Cervejas</Text>
+      <Text style={styles.description}>Aqui você pode adicionar, editar e remover cervejas do catálogo.</Text>
     </View>
   );
 };
@@ -12,12 +13,22 @@ const BeerManagementScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#fff8ec',
+    padding: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  text: {
-    fontSize: 18,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#de9606',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
   },
 });
 
-export default BeerManagementScreen;
+export default BeerManagement;

@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Ionicons } from '@expo/vector-icons';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -24,36 +24,43 @@ export default function TabLayout() {
           default: {},
         }),
       }}>
-      {/* Tela Home */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home" size={28} color={color} />,
         }}
       />
-      {/* Tela Login */}
+
       <Tabs.Screen
         name="Login"
         options={{
           title: 'Login',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="log-in-outline" size={28} color={color} />,
         }}
       />
-      {/* Tela Gerenciamento */}
+
       <Tabs.Screen
         name="AdminHub"
         options={{
           title: 'Gerenciamento',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={28} color={color} />,
         }}
       />
-      {/* Tela Contato */}
+
       <Tabs.Screen
         name="Contact"
         options={{
           title: 'Contato',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="phone.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="call-outline" size={28} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="Cart"
+        options={{
+          title: 'Carrinho',
+          tabBarIcon: ({ color }) => <Ionicons name="cart-outline" size={28} color={color} />,
         }}
       />
     </Tabs>

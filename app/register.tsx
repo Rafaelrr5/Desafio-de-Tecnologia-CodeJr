@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const PromotionManagement = () => {
+const RegisterScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Gerenciamento de Promoções</Text>
-      <Text style={styles.description}>Gerencie as promoções e ofertas disponíveis no catálogo.</Text>
+      <Text style={styles.title}>Gerenciamento de Cervejas</Text>
+      <Text style={styles.description}>Aqui você pode adicionar, editar e remover cervejas do catálogo.</Text>
     </View>
   );
 };
@@ -31,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PromotionManagement;
+export default RegisterScreen;

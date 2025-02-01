@@ -50,7 +50,7 @@ export default function Login() {
         <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+      <TouchableOpacity onPress={() => navigation.navigate('register')}>
         <Text style={styles.registerText}>Não tem uma conta? Cadastre-se</Text>
       </TouchableOpacity>
     </View>
