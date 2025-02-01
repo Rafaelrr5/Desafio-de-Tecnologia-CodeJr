@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Link } from 'expo-router';
 
 const ForgotPasswordScreen = ({ }) => {
   const [email, setEmail] = useState('');
-  const navigation = useNavigation(); // Adiciona a navegação
 
   const handlePasswordReset = () => {
     // Lógica para enviar instruções de redefinição de senha
@@ -39,9 +38,11 @@ const ForgotPasswordScreen = ({ }) => {
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('./(tabs)/Login')}>
-        <Text style={styles.backToLoginText}>Voltar para o login</Text>
-      </TouchableOpacity>
+      <Link href="/(tabs)/Login" asChild>
+        <TouchableOpacity>
+          <Text style={styles.backToLoginText}>Voltar para o login</Text>
+        </TouchableOpacity>
+      </Link>
     </View>
   );
 };

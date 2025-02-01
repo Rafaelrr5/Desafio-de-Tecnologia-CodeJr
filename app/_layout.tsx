@@ -30,9 +30,14 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)/Login" options={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)"/>
           <Stack.Screen name="+not-found" />
+          <Stack.Screen name="forgotpass" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="Settings" />
+          <Stack.Screen name="PromotionManagement" />
+          <Stack.Screen name="BeerManagement" />
         </Stack>
       </SafeAreaProvider>
       <StatusBar style="auto" />

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Link, router } from 'expo-router';
 
 export default function Login() {
-  const navigation = useNavigation(); // Adiciona a navegação
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -46,13 +45,17 @@ export default function Login() {
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('forgotpass')}>
-        <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
-      </TouchableOpacity>
+      <Link href="/forgotpass" asChild>
+        <TouchableOpacity>
+          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+        </TouchableOpacity>
+      </Link>
 
-      <TouchableOpacity onPress={() => navigation.navigate('register')}>
-        <Text style={styles.registerText}>Não tem uma conta? Cadastre-se</Text>
-      </TouchableOpacity>
+      <Link href="/register" asChild>
+        <TouchableOpacity>
+          <Text style={styles.registerText}>Não tem uma conta? Cadastre-se</Text>
+        </TouchableOpacity>
+      </Link>
     </View>
   );
 };

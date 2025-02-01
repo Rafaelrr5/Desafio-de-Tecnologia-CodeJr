@@ -1,50 +1,42 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 const AdminHub = () => {
-  const navigation = useNavigation(); // Adiciona a navegação
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Gerenciamento da Administração</Text>
       
       <ScrollView style={styles.optionsContainer}>
-        {/* Gerenciar Cervejas */}
-        <TouchableOpacity
-          style={styles.optionCard}
-          onPress={() => navigation.navigate('BeerManagement')} // Navega para a tela
-        >
-          <Image
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/174/174751.png' }}
-            style={styles.icon}
-          />
-          <Text style={styles.optionText}>Gerenciar Cervejas</Text>
-        </TouchableOpacity>
+        <Link href="/BeerManagement" asChild>
+          <TouchableOpacity style={styles.optionCard}>
+            <Image
+              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/174/174751.png' }}
+              style={styles.icon}
+            />
+            <Text style={styles.optionText}>Gerenciar Cervejas</Text>
+          </TouchableOpacity>
+        </Link>
 
-        {/* Gerenciar Promoções */}
-        <TouchableOpacity
-          style={styles.optionCard}
-          onPress={() => navigation.navigate('PromotionManagement')} // Navega para a tela
-        >
-          <Image
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3792/3792096.png' }}
-            style={styles.icon}
-          />
-          <Text style={styles.optionText}>Gerenciar Promoções</Text>
-        </TouchableOpacity>
+        <Link href="/PromotionManagement" asChild>
+          <TouchableOpacity style={styles.optionCard}>
+            <Image
+              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3792/3792096.png' }}
+              style={styles.icon}
+            />
+            <Text style={styles.optionText}>Gerenciar Promoções</Text>
+          </TouchableOpacity>
+        </Link>
 
-        {/* Configurações */}
-        <TouchableOpacity
-          style={styles.optionCard}
-          onPress={() => navigation.navigate('Settings')} // Navega para a tela
-        >
-          <Image
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/126/126472.png' }}
-            style={styles.icon}
-          />
-          <Text style={styles.optionText}>Configurações</Text>
-        </TouchableOpacity>
+        <Link href="/Settings" asChild>
+          <TouchableOpacity style={styles.optionCard}>
+            <Image
+              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/126/126472.png' }}
+              style={styles.icon}
+            />
+            <Text style={styles.optionText}>Configurações</Text>
+          </TouchableOpacity>
+        </Link>
       </ScrollView>
     </View>
   );
@@ -55,7 +47,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff8ec',
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingTop: 50, // Changed from paddingVertical: 30
+    paddingBottom: 30,
   },
   title: {
     fontSize: 24,
