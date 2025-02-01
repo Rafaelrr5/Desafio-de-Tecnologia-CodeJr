@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -27,6 +27,21 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  // Check auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        router.replace('/login');
+      }
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.replace('/login');
+      }
+    });
+  }, []);
+
   if (!loaded) {
     return null;
   }
@@ -37,10 +52,11 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SafeAreaProvider>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)"/>
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen name="register" options={{ headerShown: false }} />
+              <Stack.Screen name="forgotpass" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="+not-found" />
-              <Stack.Screen name="forgotpass" />
-              <Stack.Screen name="register" />
               <Stack.Screen name="Settings" />
               <Stack.Screen name="PromotionManagement" />
               <Stack.Screen name="BeerManagement" />

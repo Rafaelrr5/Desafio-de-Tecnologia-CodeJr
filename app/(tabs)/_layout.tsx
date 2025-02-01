@@ -1,14 +1,33 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { Platform, Image } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { Ionicons } from '@expo/vector-icons';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  // Add authentication check
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.replace('/login');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      router.replace('/login');
+    }
+  };
 
   return (
     <Tabs
@@ -28,15 +47,17 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Ionicons name="home" size={28} color={color} />,
-        }}
-      />
-
-      <Tabs.Screen
-        name="Login"
-        options={{
-          title: 'Login',
-          tabBarIcon: ({ color }) => <Ionicons name="log-in-outline" size={28} color={color} />,
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={{
+                width: 28,
+                height: 28,
+                opacity: focused ? 1 : 0.7,
+                borderRadius: 14,
+              }}
+            />
+          ),
         }}
       />
 
