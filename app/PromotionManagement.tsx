@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { api } from '@/services/api';
+import { PromotionFormModal } from '@/components/PromotionFormModal';
 
 interface Promotion {
   id: string;
@@ -14,45 +16,83 @@ interface Promotion {
   isActive: boolean;
 }
 
-const mockPromotions: Promotion[] = [
-  {
-    id: '1',
-    title: 'Happy Hour - 2x1',
-    description: 'Compre uma cerveja e leve outra grátis',
-    discount: 50,
-    validUntil: '2024-02-28',
-    isActive: true,
-  },
-  {
-    id: '2',
-    title: 'Desconto Especial',
-    description: 'Todas as cervejas artesanais com 30% OFF',
-    discount: 30,
-    validUntil: '2024-03-15',
-    isActive: true,
-  },
-  {
-    id: '3',
-    title: 'Promoção de Verão',
-    description: 'Cervejas geladas com 25% de desconto',
-    discount: 25,
-    validUntil: '2024-03-30',
-    isActive: false,
-  },
-  {
-    id: '4',
-    title: 'Dia de Pagode',
-    description: 'Todo domingo: Cervejas com 20% de desconto durante o pagode ao vivo',
-    discount: 20,
-    validUntil: '2024-12-31',
-    isActive: true,
-  },
-];
-
 const PromotionManagement = () => {
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    loadPromotions();
+  }, []);
+
+  const loadPromotions = async () => {
+    try {
+      const data = await api.getPromotions();
+      // Handle the case where data might be null or undefined
+      setPromotions(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error loading promotions:', error);
+      Alert.alert('Erro', 'Não foi possível carregar as promoções.');
+      setPromotions([]); // Set empty array on error
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza que deseja excluir esta promoção?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.deletePromotion(id);
+              // Refresh promotion list
+              loadPromotions();
+            } catch (error) {
+              console.error('Error deleting promotion:', error);
+              Alert.alert('Erro', 'Não foi possível excluir a promoção.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEdit = (promotion: Promotion) => {
+    // Show edit modal
+    setEditingPromotion(promotion);
+    setModalVisible(true);
+  };
+
+  const handleAdd = () => {
+    setEditingPromotion(null);
+    setModalVisible(true);
+  };
+
+  const handleSave = async (promotion: Promotion) => {
+    try {
+      if (editingPromotion) {
+        await api.updatePromotion(promotion.id, promotion);
+      } else {
+        await api.createPromotion(promotion);
+      }
+      setModalVisible(false);
+      loadPromotions();
+    } catch (error) {
+      console.error('Error saving promotion:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a promoção.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+      >
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton} 
@@ -63,7 +103,7 @@ const PromotionManagement = () => {
           <Text style={styles.title}>Gerenciamento de Promoções</Text>
         </View>
 
-        {mockPromotions.map((promo) => (
+        {promotions.map((promo) => (
           <Card key={promo.id} style={styles.card}>
             <Card.Content>
               <View style={styles.promoHeader}>
@@ -81,7 +121,7 @@ const PromotionManagement = () => {
                 mode="contained" 
                 buttonColor="#de9606"
                 textColor="#fff"
-                onPress={() => console.log('Editar', promo.id)}
+                onPress={() => handleEdit(promo)}
               >
                 Editar
               </Button>
@@ -89,7 +129,7 @@ const PromotionManagement = () => {
                 mode="contained"
                 buttonColor="#D9534F"
                 textColor="#fff"
-                onPress={() => console.log('Excluir', promo.id)}
+                onPress={() => handleDelete(promo.id)}
               >
                 Excluir
               </Button>
@@ -101,7 +141,13 @@ const PromotionManagement = () => {
         icon="plus"
         style={styles.fab}
         color="#fff"
-        onPress={() => console.log('Add new promotion')}
+        onPress={handleAdd}
+      />
+      <PromotionFormModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSave={handleSave}
+        initialData={editingPromotion}
       />
     </SafeAreaView>
   );
@@ -172,6 +218,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#de9606',
+  },
+  scrollContent: {
+    paddingBottom: 80, // Add padding at bottom for FAB
   },
 });
 

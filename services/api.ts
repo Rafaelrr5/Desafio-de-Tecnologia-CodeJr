@@ -64,5 +64,86 @@ export const api = {
       headers,
     });
     return response.json();
+  },
+
+  // Beer CRUD operations
+  async createBeer(beer: Beer) {
+    const response = await fetch(`${API_URL}/rest/v1/beers`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify(beer),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Server error:', errorData);
+      throw new Error(errorData.message || 'Failed to create beer');
+    }
+
+    return response.json();
+  },
+
+  async updateBeer(id: string, beer: Partial<Beer>) {
+    const response = await fetch(`${API_URL}/rest/v1/beers?id=eq.${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(beer),
+    });
+    return response.json();
+  },
+
+  async deleteBeer(id: string) {
+    const response = await fetch(`${API_URL}/rest/v1/beers?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        ...headers,
+        'Prefer': 'return=minimal',
+      },
+    });
+    // Return true if successful, throw error otherwise
+    if (response.ok) return true;
+    throw new Error('Failed to delete beer');
+  },
+
+  // Promotion CRUD operations
+  async createPromotion(promotion: Promotion) {
+    const response = await fetch(`${API_URL}/rest/v1/promotions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(promotion),
+    });
+    return response.json();
+  },
+
+  async updatePromotion(id: string, promotion: Partial<Promotion>) {
+    const response = await fetch(`${API_URL}/rest/v1/promotions?id=eq.${id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(promotion),
+    });
+    return response.json();
+  },
+
+  async deletePromotion(id: string) {
+    const response = await fetch(`${API_URL}/rest/v1/promotions?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        ...headers,
+        'Prefer': 'return=minimal',
+      },
+    });
+    // Return true if successful, throw error otherwise
+    if (response.ok) return true;
+    throw new Error('Failed to delete promotion');
+  },
+
+  async getPromotions() {
+    const response = await fetch(`${API_URL}/rest/v1/promotions?select=*`, {
+      headers,
+    });
+    return response.json();
   }
 };
