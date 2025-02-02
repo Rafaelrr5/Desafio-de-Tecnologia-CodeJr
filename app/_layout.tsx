@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { CartProvider } from '@/contexts/cartContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,33 +70,35 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.container}>
       <SessionContextProvider supabaseClient={supabase}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <SafeAreaProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen 
-                name="login"
-                options={{ 
-                  headerShown: false,
-                  presentation: 'modal'
-                }} 
-              />
-              <Stack.Screen 
-                name="register"
-                options={{ 
-                  headerShown: false,
-                  presentation: 'modal'
-                }} 
-              />
-              <Stack.Screen 
-                name="BeerDetailsModal"
-                options={{ presentation: 'modal' }} 
-              />
-              <Stack.Screen name="forgotpass" />
-            </Stack>
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          </SafeAreaProvider>
-        </ThemeProvider>
+        <CartProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <SafeAreaProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen 
+                  name="login"
+                  options={{ 
+                    headerShown: false,
+                    presentation: 'modal'
+                  }} 
+                />
+                <Stack.Screen 
+                  name="register"
+                  options={{ 
+                    headerShown: false,
+                    presentation: 'modal'
+                  }} 
+                />
+                <Stack.Screen 
+                  name="BeerDetailsModal"
+                  options={{ presentation: 'modal' }} 
+                />
+                <Stack.Screen name="forgotpass" />
+              </Stack>
+              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+            </SafeAreaProvider>
+          </ThemeProvider>
+        </CartProvider>
       </SessionContextProvider>
     </GestureHandlerRootView>
   );

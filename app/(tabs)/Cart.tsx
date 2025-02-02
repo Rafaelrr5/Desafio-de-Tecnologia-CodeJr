@@ -1,55 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
-import { api } from '@/services/api';
+import { useCart } from '@/contexts/cartContext';
 
-const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCartItems();
-  }, []);
-
-  const fetchCartItems = async () => {
-    try {
-      const userId = '...'; // Get user ID from auth context/storage
-      const data = await api.getCartItems(userId);
-      setCartItems(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar itens do carrinho:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const removeItem = async (id: string) => {
-    try {
-      await api.removeCartItem(id);
-      setCartItems(cartItems.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error('Erro ao remover item:', error);
-    }
-  };
-
-  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+export default function Cart() {
+  const { items, removeFromCart, updateQuantity, getTotalPrice } = useCart();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Meu Carrinho</Text>
 
       <FlatList
-        data={cartItems}
-        keyExtractor={(item) => item.id}
+        data={items}
+        keyExtractor={(item) => item.beer.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Image source={{ uri: item.image }} style={styles.image} />
+            <Image source={{ uri: item.beer.image }} style={styles.image} />
             <View style={styles.details}>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.description}>{item.description}</Text>
-              <Text style={styles.price}>R$ {item.price.toFixed(2)}</Text>
+              <Text style={styles.itemName}>{item.beer.name}</Text>
+              <Text style={styles.price}>R$ {item.beer.price.toFixed(2)}</Text>
               <Text style={styles.quantity}>Quantidade: {item.quantity}</Text>
             </View>
-            <TouchableOpacity style={styles.removeButton} onPress={() => removeItem(item.id)}>
+            <TouchableOpacity 
+              style={styles.removeButton} 
+              onPress={() => removeFromCart(item.beer.id)}
+            >
               <Text style={styles.removeText}>Remover</Text>
             </TouchableOpacity>
           </View>
@@ -57,14 +31,16 @@ const Cart = () => {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.totalText}>Total: R$ {totalPrice.toFixed(2)}</Text>
+        <Text style={styles.totalText}>
+          Total: R$ {getTotalPrice().toFixed(2)}
+        </Text>
         <TouchableOpacity style={styles.checkoutButton}>
           <Text style={styles.checkoutText}>Finalizar Compra</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -158,5 +134,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default Cart;

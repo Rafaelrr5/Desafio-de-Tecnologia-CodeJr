@@ -8,6 +8,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { api } from '@/services/api';
 import { Beer } from '../types/beer';
+import { useCart } from '@/contexts/cartContext';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = SCREEN_HEIGHT * 0.3;
@@ -19,7 +20,9 @@ export default function BeerDetailsModal() {
   const beerId = params.id as string; // Changed from Number(params.id)
   const [beer, setBeer] = useState<Beer | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
   const translateY = useSharedValue(0);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     async function loadBeer() {
@@ -84,6 +87,21 @@ export default function BeerDetailsModal() {
     );
   }
 
+  const handleAddToCart = () => {
+    if (beer) {
+      addToCart(beer, quantity);
+      router.back();
+    }
+  };
+
+  const incrementQuantity = () => {
+    setQuantity(prev => prev + 1);
+  };
+
+  const decrementQuantity = () => {
+    setQuantity(prev => prev > 1 ? prev - 1 : 1);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <GestureDetector gesture={gesture}>
@@ -126,10 +144,26 @@ export default function BeerDetailsModal() {
               </View>
 
               <View style={styles.footer}>
-                <Text style={styles.price}>R$ {beer.price.toFixed(2)}</Text>
-                <TouchableOpacity style={styles.addToCartButton}>
-                  <Text style={styles.addToCartText}>Adicionar ao Carrinho</Text>
-                </TouchableOpacity>
+                <View style={styles.footerActions}>
+                  <View style={styles.quantityContainer}>
+                    <TouchableOpacity onPress={decrementQuantity} style={styles.quantityButton}>
+                      <Text style={styles.quantityButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.quantityText}>{quantity}</Text>
+                    <TouchableOpacity onPress={incrementQuantity} style={styles.quantityButton}>
+                      <Text style={styles.quantityButtonText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity 
+                    style={styles.addToCartButton}
+                    onPress={handleAddToCart}
+                  >
+                    <Text style={styles.addToCartText}>Adicionar</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.price}>
+                    R$ {(beer.price * quantity).toFixed(2)}
+                  </Text>
+                </View>
               </View>
             </View>
           </ScrollView>
@@ -212,23 +246,28 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eee',
     marginTop: 16,
+    paddingTop: 16,
+  },
+  footerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
   },
   price: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#de9606',
-    marginBottom: 16,
+    minWidth: 80,
+    textAlign: 'right',
   },
   addToCartButton: {
     backgroundColor: '#de9606',
-    padding: 16,
+    padding: 12,
     borderRadius: 8,
     alignItems: 'center',
-  },
-  addToCartText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    flex: 1,
+    maxWidth: 120,
   },
   scrollView: {
     flex: 1,
@@ -236,5 +275,31 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 4,
+  },
+  quantityButton: {
+    backgroundColor: '#de9606',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quantityButtonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    fontSize: 16,
+    marginHorizontal: 16,
+    color: '#6A3805',
+    fontWeight: 'bold',
   },
 });
