@@ -1,18 +1,17 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, router } from 'expo-router';
+import { Stack, Slot, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { supabase } from '@/lib/supabase';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -20,6 +19,38 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
+  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState<'/(tabs)' | '/login'>('/login');
+
+  useEffect(() => {
+    checkSession();
+
+    // Add auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setInitialRoute('/(tabs)');
+        router.replace('/(tabs)');
+      } else {
+        setInitialRoute('/login');
+        router.replace('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkSession = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setInitialRoute('/(tabs)');
+      }
+    } catch (error) {
+      console.error('Session check error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (loaded) {
@@ -27,23 +58,12 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Check auth state
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        router.replace('/login');
-      }
-    });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.replace('/login');
-      }
-    });
-  }, []);
-
-  if (!loaded) {
-    return null;
+  if (!loaded || loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
@@ -52,25 +72,29 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <SafeAreaProvider>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="login" options={{ headerShown: false }} />
-              <Stack.Screen name="register" options={{ headerShown: false }} />
-              <Stack.Screen name="forgotpass" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="Settings" />
-              <Stack.Screen name="PromotionManagement" />
-              <Stack.Screen name="BeerManagement" />
+              <Stack.Screen name="(tabs)" />
               <Stack.Screen 
-                name="BeerDetailsModal" 
-                options={{
-                  presentation: 'modal',
+                name="login"
+                options={{ 
                   headerShown: false,
-                  animation: 'slide_from_bottom',
+                  presentation: 'modal'
                 }} 
               />
+              <Stack.Screen 
+                name="register"
+                options={{ 
+                  headerShown: false,
+                  presentation: 'modal'
+                }} 
+              />
+              <Stack.Screen 
+                name="BeerDetailsModal"
+                options={{ presentation: 'modal' }} 
+              />
+              <Stack.Screen name="forgotpass" />
             </Stack>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
           </SafeAreaProvider>
-          <StatusBar style="auto" />
         </ThemeProvider>
       </SessionContextProvider>
     </GestureHandlerRootView>

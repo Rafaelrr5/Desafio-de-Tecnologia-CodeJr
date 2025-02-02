@@ -1,19 +1,44 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    if (!email || !password || !confirmPassword) {
+      alert('Por favor, preencha todos os campos');
+      return;
+    }
+
     if (password !== confirmPassword) {
       alert('As senhas não conferem');
       return;
     }
-    // Lógica de registro aqui
-    console.log('Email:', email, 'Password:', password);
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        alert('Cadastro realizado com sucesso! Verifique seu e-mail para confirmar a conta.');
+        router.replace('/login');
+      }
+    } catch (error) {
+      alert(error.message);
+      console.error('Error registering:', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +60,7 @@ export default function Register() {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        editable={!loading}
       />
 
       <TextInput
@@ -44,6 +70,7 @@ export default function Register() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
 
       <TextInput
@@ -53,13 +80,20 @@ export default function Register() {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry
+        editable={!loading}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Cadastrar</Text>
+      <TouchableOpacity 
+        style={[styles.button, loading && styles.buttonDisabled]} 
+        onPress={handleRegister}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Cadastrando...' : 'Cadastrar'}
+        </Text>
       </TouchableOpacity>
 
-      <Link href="/(tabs)/Login" asChild>
+      <Link href="/login" asChild>
         <TouchableOpacity>
           <Text style={styles.loginText}>Já tem uma conta? Faça login</Text>
         </TouchableOpacity>
@@ -126,5 +160,8 @@ const styles = StyleSheet.create({
     color: '#de9606',
     textDecorationLine: 'underline',
     marginTop: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
   },
 });
