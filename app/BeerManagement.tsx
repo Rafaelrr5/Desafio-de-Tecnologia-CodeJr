@@ -24,6 +24,7 @@ const BeerManagement = () => {
     loadBeers();
   }, []);
 
+  // Função para carregar a lista de cervejas
   const loadBeers = async () => {
     try {
       const data = await api.getBeers();
@@ -36,6 +37,7 @@ const BeerManagement = () => {
     }
   };
 
+  // Função para deletar uma cerveja
   const handleDelete = async (id: string) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -60,17 +62,20 @@ const BeerManagement = () => {
     );
   };
 
+  // Função para editar uma cerveja
   const handleEdit = (beer: Beer) => {
     // Show edit modal
     setEditingBeer(beer);
     setModalVisible(true);
   };
 
+  // Função para adicionar uma nova cerveja
   const handleAdd = () => {
     setEditingBeer(null);
     setModalVisible(true);
   };
 
+  // Função para salvar uma cerveja (nova ou editada)
   const handleSave = async (beer: Beer) => {
     try {
       console.log('Saving beer:', beer); // Debug log

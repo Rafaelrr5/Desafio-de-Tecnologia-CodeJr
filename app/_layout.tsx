@@ -13,8 +13,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { CartProvider } from '@/contexts/cartContext';
 
+// Impede que a tela de splash seja escondida automaticamente
 SplashScreen.preventAutoHideAsync();
 
+// Layout raiz da aplicação que gerencia autenticação e navegação
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -26,7 +28,8 @@ export default function RootLayout() {
   useEffect(() => {
     checkSession();
 
-    // Add auth state listener
+    // Configuração do listener de estado de autenticação
+    // Redireciona automaticamente baseado na sessão do usuário
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setInitialRoute('/(tabs)');
@@ -40,6 +43,8 @@ export default function RootLayout() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Verifica se existe uma sessão ativa ao iniciar o app
+  // Define a rota inicial com base no estado da autenticação
   const checkSession = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -53,12 +58,14 @@ export default function RootLayout() {
     }
   };
 
+  // Aguarda o carregamento das fontes antes de esconder a tela de splash
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
+  // Exibe loading enquanto os recursos iniciais são carregados
   if (!loaded || loading) {
     return (
       <View style={styles.container}>
@@ -67,6 +74,7 @@ export default function RootLayout() {
     );
   }
 
+  // Renderiza a estrutura principal do app com provedores de contexto
   return (
     <GestureHandlerRootView style={styles.container}>
       <SessionContextProvider supabaseClient={supabase}>
