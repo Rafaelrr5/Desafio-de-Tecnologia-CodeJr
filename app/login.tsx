@@ -3,6 +3,7 @@ import { StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-nati
 import { Text } from 'react-native-paper';
 import { Link, router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,14 +18,10 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
+      const response = await api.signIn(email, password);
+      if (response.error) throw response.error;
       
-      if (data.session) {
+      if (response.access_token) {
         router.replace('/(tabs)');
       }
     } catch (error) {

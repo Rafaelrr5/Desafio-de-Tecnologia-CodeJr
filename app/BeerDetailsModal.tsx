@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { supabase } from '../lib/supabase';
+import { api } from '@/services/api';
 import { Beer } from '../types/beer';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -30,25 +30,15 @@ export default function BeerDetailsModal() {
       }
 
       try {
-        console.log('Fetching beer with ID:', beerId); // Debug log
-        const { data, error } = await supabase
-          .from('beers')
-          .select('*')
-          .eq('id', beerId)
-          .single();
-          
-        console.log('Supabase response:', { data, error }); // Debug log
-          
-        if (error) throw error;
+        const data = await api.getBeerById(beerId);
         if (!data) {
-          console.log('No data found for beer ID:', beerId); // Debug log
+          console.log('No data found for beer ID:', beerId);
           return;
         }
         
-        console.log('Beer image URL:', data.image); // Debug log
         setBeer({
           ...data,
-          image: data.image || DEFAULT_BEER_IMAGE // Ensure there's always an image
+          image: data.image || DEFAULT_BEER_IMAGE
         });
       } catch (error) {
         console.error('Error loading beer:', error);

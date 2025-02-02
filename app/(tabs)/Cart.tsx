@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
-import { supabase } from '../../lib/supabase';
+import { api } from '@/services/api';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -12,12 +12,8 @@ const Cart = () => {
 
   const fetchCartItems = async () => {
     try {
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('*, beers(*)') // assumindo que existe uma relação com a tabela beers
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
-
-      if (error) throw error;
+      const userId = '...'; // Get user ID from auth context/storage
+      const data = await api.getCartItems(userId);
       setCartItems(data || []);
     } catch (error) {
       console.error('Erro ao buscar itens do carrinho:', error);
@@ -28,12 +24,7 @@ const Cart = () => {
 
   const removeItem = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.removeCartItem(id);
       setCartItems(cartItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error('Erro ao remover item:', error);
