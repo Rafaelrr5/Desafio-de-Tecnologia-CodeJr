@@ -1,26 +1,41 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Abaixo estão as cores que são usadas no aplicativo. As cores são definidas nos modos claro e escuro.
+ * Existem muitas outras maneiras de estilizar seu aplicativo. Por exemplo, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: '#000',
+    background: '#fff8ec', // Fundo bege claro
+    tint: '#de9606', // Acento laranja/dourado
+    tabIconDefault: '#ccc',
+    tabIconSelected: '#de9606',
+    primary: '#de9606', // Laranja primário
+    secondary: '#6A3805', // Marrom
+    surface: '#fff',
+    error: '#D9534F', // Vermelho para erros/ações de exclusão
+    success: '#4CAF50',
+    textLight: '#6d5d58', // Texto marrom claro
+    inputBackground: '#fff',
+    borderColor: '#ddd',
+    cardBackground: '#f7e4d4', // Pêssego claro para cards
+    overlay: 'rgba(106, 56, 5, 0.3)', // Marrom semi-transparente
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+    text: '#fff',
+    background: '#121212',
+    tint: '#de9606',
+    tabIconDefault: '#ccc',
+    tabIconSelected: '#de9606',
+    primary: '#de9606',
+    secondary: '#6A3805',
+    surface: '#121212',
+    error: '#CF6679',
+    success: '#81C784',
+    textLight: '#6d5d58',
+    inputBackground: '#1e1e1e',
+    borderColor: '#333',
+    cardBackground: '#1e1e1e',
+    overlay: 'rgba(0, 0, 0, 0.5)',
+  }
 };

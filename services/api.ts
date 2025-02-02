@@ -89,9 +89,18 @@ export const api = {
   async updateBeer(id: string, beer: Partial<Beer>) {
     const response = await fetch(`${API_URL}/rest/v1/beers?id=eq.${id}`, {
       method: 'PATCH',
-      headers,
-      body: JSON.stringify(beer),
+      headers: {
+        ...headers,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(beer)
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update beer');
+    }
+
     return response.json();
   },
 
