@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Platform, Image, Alert } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,23 +11,6 @@ import { router } from 'expo-router';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
-  // Add authentication check
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.replace('/login');
-      }
-    } catch (error) {
-      console.error('Auth error:', error);
-      router.replace('/login');
-    }
-  };
 
   const handleLogout = async () => {
     Alert.alert(
