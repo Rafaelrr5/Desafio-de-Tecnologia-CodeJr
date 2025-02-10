@@ -55,6 +55,14 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
   }, [initialData, visible]);
 
   const handleChange = (name: string, value: any) => {
+    if (name === 'discount') {
+      // Trata o valor do desconto para permitir apenas números válidos
+      const numValue = value === '' ? 0 : Number(value);
+      if (!isNaN(numValue)) {
+        setFormData(prev => ({ ...prev, discount: numValue }));
+      }
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -168,8 +176,8 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             />
             <TextInput
               label="Desconto (%)"
-              value={formData.discount.toString()}
-              onChangeText={text => handleChange('discount', parseFloat(text))}
+              value={formData.discount > 0 ? formData.discount.toString() : ''}
+              onChangeText={text => handleChange('discount', text)}
               keyboardType="decimal-pad"
               style={styles.input}
               theme={{
