@@ -13,6 +13,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { CartProvider } from '@/contexts/cartContext';
 import { getSession } from '@/services/auth';
+import { layoutStyles } from '@/styles/layout.styles';
 
 // Impede que a tela de splash seja escondida automaticamente
 SplashScreen.preventAutoHideAsync();
@@ -71,14 +72,14 @@ export default function RootLayout() {
 
   if (!loaded || loading) {
     return (
-      <View style={styles.container}>
+      <View style={layoutStyles.container}>
         <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <GestureHandlerRootView style={layoutStyles.container}>
       <SessionContextProvider supabaseClient={supabase}>
         <CartProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

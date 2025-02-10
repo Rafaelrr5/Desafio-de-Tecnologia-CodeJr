@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Image, Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-na
 import { api } from '@/services/api';
 import { Beer } from '../types/beer';
 import { useCart } from '@/contexts/cartContext';
+import { styles } from '@/styles/BeerDetailsModal.styles';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = SCREEN_HEIGHT * 0.3;
@@ -25,26 +26,27 @@ export default function BeerDetailsModal() {
   const { addToCart } = useCart();
 
   useEffect(() => {
+    /**
+     * Carrega os detalhes da cerveja a partir do ID
+     * Atualiza o estado com os dados recebidos da API
+     * Usa uma imagem padrão caso a cerveja não tenha imagem
+     */
     async function loadBeer() {
       if (!beerId) {
-        console.error('No beer ID provided');
         setLoading(false);
         return;
       }
 
       try {
         const data = await api.getBeerById(beerId);
-        if (!data) {
-          console.log('No data found for beer ID:', beerId);
-          return;
+        if (data) {
+          setBeer({
+            ...data,
+            image: data.image || DEFAULT_BEER_IMAGE
+          });
         }
-        
-        setBeer({
-          ...data,
-          image: data.image || DEFAULT_BEER_IMAGE
-        });
       } catch (error) {
-        console.error('Error loading beer:', error);
+        // Tratamento silencioso do erro
       } finally {
         setLoading(false);
       }
@@ -52,6 +54,10 @@ export default function BeerDetailsModal() {
     loadBeer();
   }, [beerId]);
 
+  /**
+   * Gerencia o gesto de arrastar para baixo
+   * Permite fechar o modal quando o usuário arrasta além do limite
+   */
   const gesture = Gesture.Pan()
     .onUpdate((event) => {
       if (event.translationY > 0) {
@@ -179,127 +185,3 @@ const DetailItem = ({ label, value }: { label: string; value: string }) => (
     <Text style={styles.detailValue}>{value}</Text>
   </View>
 );
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff8ec',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff8ec',
-    position: 'relative',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    zIndex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 8,
-  },
-  beerImage: {
-    width: '100%',
-    height: 300,
-    resizeMode: 'cover',
-  },
-  content: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#6A3805',
-    marginBottom: 4,
-  },
-  type: {
-    fontSize: 16,
-    color: '#6d5d58',
-    marginBottom: 16,
-  },
-  description: {
-    fontSize: 14,
-    color: '#6d5d58',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  detailsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  detailItem: {
-    width: '50%',
-    paddingVertical: 8,
-  },
-  detailLabel: {
-    fontSize: 12,
-    color: '#6d5d58',
-    marginBottom: 2,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: '#6A3805',
-    fontWeight: '500',
-  },
-  footer: {
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    marginTop: 16,
-    paddingTop: 16,
-  },
-  footerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#de9606',
-    minWidth: 80,
-    textAlign: 'right',
-  },
-  addToCartButton: {
-    backgroundColor: '#de9606',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
-    maxWidth: 120,
-  },
-  scrollView: {
-    flex: 1,
-    width: '100%',
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 4,
-  },
-  quantityButton: {
-    backgroundColor: '#de9606',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantityButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  quantityText: {
-    fontSize: 16,
-    marginHorizontal: 16,
-    color: '#6A3805',
-    fontWeight: 'bold',
-  },
-});

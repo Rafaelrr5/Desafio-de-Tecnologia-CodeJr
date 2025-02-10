@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Link, router } from 'expo-router';
 import { signIn } from '@/services/auth';
+import { loginStyles } from '@/styles/login.styles';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -31,18 +32,18 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={loginStyles.container}>
       <Image
         source={{
           uri: 'https://cdn-icons-png.flaticon.com/512/3064/3064197.png',
         }}
-        style={styles.image}
+        style={loginStyles.image}
       />
-      <Text style={styles.title}>Bem-vindo de volta!</Text>
-      <Text style={styles.subtitle}>Faça login para continuar</Text>
+      <Text style={loginStyles.title}>Bem-vindo de volta!</Text>
+      <Text style={loginStyles.subtitle}>Faça login para continuar</Text>
 
       <TextInput
-        style={styles.input}
+        style={loginStyles.input}
         placeholder="Digite seu e-mail"
         placeholderTextColor="#aaa"
         value={email}
@@ -53,7 +54,7 @@ export default function Login() {
       />
 
       <TextInput
-        style={styles.input}
+        style={loginStyles.input}
         placeholder="Digite sua senha"
         placeholderTextColor="#aaa"
         value={password}
@@ -63,98 +64,28 @@ export default function Login() {
       />
 
       <TouchableOpacity 
-        style={[styles.button, loading && styles.buttonDisabled]} 
+        style={[loginStyles.button, loading && loginStyles.buttonDisabled]} 
         onPress={handleLogin}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>
+        <Text style={loginStyles.buttonText}>
           {loading ? 'Entrando...' : 'Entrar'}
         </Text>
       </TouchableOpacity>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text style={loginStyles.errorText}>{error}</Text> : null}
 
       <Link href="/forgotpass" asChild>
         <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+          <Text style={loginStyles.forgotPasswordText}>Esqueci minha senha</Text>
         </TouchableOpacity>
       </Link>
 
       <Link href="/register" asChild>
         <TouchableOpacity>
-          <Text style={styles.registerText}>Não tem uma conta? Cadastre-se</Text>
+          <Text style={loginStyles.registerText}>Não tem uma conta? Cadastre-se</Text>
         </TouchableOpacity>
       </Link>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff8ec',
-    padding: 20,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#de9606',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6d5d58',
-    marginBottom: 24,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#333',
-  },
-  button: {
-    width: '100%',
-    backgroundColor: '#de9606',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: '#de9606',
-    marginTop: 16,
-  },
-  registerText: {
-    fontSize: 14,
-    color: '#de9606',
-    marginTop: 16,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 14,
-    marginTop: 12,
-    textAlign: 'center',
-  },
-});

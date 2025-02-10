@@ -7,6 +7,7 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { handleLogoutConfirmation } from '@/services/auth';
+import { layoutStyles } from '@/styles/layout.styles';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -32,12 +33,10 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <Image
               source={require('../../assets/images/logo.png')}
-              style={{
-                width: 28,
-                height: 28,
-                opacity: focused ? 1 : 0.7,
-                borderRadius: 14,
-              }}
+              style={[
+                layoutStyles.tabIcon,
+                { opacity: focused ? 1 : 0.7 }
+              ]}
             />
           ),
         }}
