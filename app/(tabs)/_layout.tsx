@@ -1,46 +1,15 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, Image, Alert } from 'react-native';
+import { Platform, Image } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { Ionicons } from '@expo/vector-icons';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { supabase } from '@/lib/supabase';
-import { router } from 'expo-router';
-import { signOut } from '@/services/auth';
+import { handleLogoutConfirmation } from '@/services/auth';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
-  const handleLogout = async () => {
-    Alert.alert(
-      'Confirmar Saída',
-      'Tem certeza que deseja sair?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Sim',
-          onPress: async () => {
-            try {
-              const response = await signOut();
-              if (response.success) {
-                router.replace('/login');
-              } else {
-                console.error('Logout error:', response.error);
-              }
-            } catch (error) {
-              console.error('Logout error:', error);
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
 
   return (
     <Tabs
@@ -102,8 +71,8 @@ export default function TabLayout() {
         name="logout"
         listeners={{
           tabPress: (e) => {
-            (e as any).preventDefault();
-            handleLogout();
+            e.preventDefault();
+            handleLogoutConfirmation();
           },
         }}
         options={{

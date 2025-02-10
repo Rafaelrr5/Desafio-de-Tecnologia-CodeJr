@@ -1,3 +1,6 @@
+import { Alert } from 'react-native';
+import { router } from 'expo-router';
+
 export type AuthResponse = {
   success: boolean;
   error?: string;
@@ -105,4 +108,33 @@ export const signOut = async (): Promise<AuthResponse> => {
       error: error.message
     };
   }
+};
+
+export const handleLogoutConfirmation = () => {
+  Alert.alert(
+    'Confirmar Saída',
+    'Tem certeza que deseja sair?',
+    [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {
+        text: 'Sim',
+        onPress: async () => {
+          try {
+            const response = await signOut();
+            if (response.success) {
+              router.replace('/login');
+            } else {
+              console.error('Logout error:', response.error);
+            }
+          } catch (error) {
+            console.error('Logout error:', error);
+          }
+        },
+      },
+    ],
+    { cancelable: true }
+  );
 };
