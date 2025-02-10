@@ -4,43 +4,30 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { api } from '@/services/api';
-import { PromotionFormModal } from '@/components/PromotionFormModal';
-import { styles } from '@/styles/PromotionManagement.styles';
-
-interface Promotion {
-  id: string;
-  title: string;
-  description: string;
-  discount: number;
-  validUntil: string;
-  isActive: boolean;
-}
+import { usePromotions, Promotion } from '../contexts/promotionContext';
+import { PromotionFormModal } from '../components/PromotionFormModal';
+import { styles } from '../styles/PromotionManagement.styles';
 
 const PromotionManagement = () => {
-  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const { 
+    promotions, 
+    loading, 
+    error, 
+    fetchPromotions, 
+    deletePromotion,
+    updatePromotion,
+    createPromotion
+  } = usePromotions();
+
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    loadPromotions();
+    fetchPromotions();
   }, []);
 
-  /**
-   * Carrega a lista de promoções do servidor
-   * Atualiza o estado com as promoções recebidas
-   */
-  const loadPromotions = async () => {
-    try {
-      const data = await api.getPromotions();
-      // Handle the case where data might be null or undefined
-      setPromotions(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error loading promotions:', error);
-      Alert.alert('Erro', 'Não foi possível carregar as promoções.');
-      setPromotions([]); // Set empty array on error
-    }
-  };
+  if (loading) return <View><Text>Loading...</Text></View>;
+  if (error) return <View><Text>Error: {error}</Text></View>;
 
   /**
    * Gerencia a exclusão de uma promoção
@@ -58,11 +45,9 @@ const PromotionManagement = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await api.deletePromotion(id);
-              // Refresh promotion list
-              loadPromotions();
+              await deletePromotion(id);
+              await fetchPromotions();
             } catch (error) {
-              console.error('Error deleting promotion:', error);
               Alert.alert('Erro', 'Não foi possível excluir a promoção.');
             }
           },
@@ -89,12 +74,12 @@ const PromotionManagement = () => {
   const handleSave = async (promotion: Promotion) => {
     try {
       if (editingPromotion) {
-        await api.updatePromotion(promotion.id, promotion);
+        await updatePromotion(promotion.id, promotion);
       } else {
-        await api.createPromotion(promotion);
+        await createPromotion(promotion);
       }
+      await fetchPromotions(); // Refresh promotions after changes
       setModalVisible(false);
-      loadPromotions();
     } catch (error) {
       console.error('Error saving promotion:', error);
       Alert.alert('Erro', 'Não foi possível salvar a promoção.');

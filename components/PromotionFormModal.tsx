@@ -2,68 +2,71 @@ import React, { useState, useEffect } from 'react';
 import { View, Modal, Alert, ScrollView } from 'react-native';
 import { TextInput, Button, Switch, Text } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { styles } from '@/styles/PromotionFormModal.styles';
+import { styles } from '../styles/PromotionFormModal.styles';
+import { Promotion, usePromotions } from '../contexts/promotionContext';
 
 interface PromotionFormModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (promotion: Partial<Promotion>) => Promise<void>;
+  onSave: () => void;
   initialData?: Promotion;
 }
 
 export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: PromotionFormModalProps) => {
+  const { createPromotion, updatePromotion } = usePromotions();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    id: '',
     title: '',
     description: '',
-    discount: '',
-    validUntil: new Date(),
+    discount: 0,
+    validUntil: '',
     isActive: true,
   });
+  const [error, setError] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
+        id: initialData.id,
         title: initialData.title,
         description: initialData.description,
-        discount: initialData.discount.toString(),
-        validUntil: new Date(initialData.validUntil),
+        discount: initialData.discount,
+        validUntil: initialData.validUntil,
         isActive: initialData.isActive,
       });
     } else {
       setFormData({
+        id: '',
         title: '',
         description: '',
-        discount: '',
-        validUntil: new Date(),
+        discount: 0,
+        validUntil: '',
         isActive: true,
       });
     }
   }, [initialData, visible]);
 
-  /**
-   * Valida e salva os dados do formulário
-   * Realiza validações básicas antes de enviar
-   */
-  const handleSave = async () => {
-    if (!formData.title || !formData.description || !formData.discount) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
-      return;
-    }
+  const handleChange = (name: string, value: any) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      await onSave({
-        title: formData.title,
-        description: formData.description,
-        discount: parseFloat(formData.discount),
-        validUntil: formData.validUntil.toISOString(),
-        isActive: formData.isActive,
-      });
+      const { id, ...data } = formData;
+      if (id) {
+        await updatePromotion(id, data);
+      } else {
+        await createPromotion(data);
+      }
+      onSave();
       onClose();
-    } catch (error) {
-      Alert.alert('Erro', 'Falha ao salvar promoção');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar promoção');
     } finally {
       setLoading(false);
     }
@@ -85,7 +88,7 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             <TextInput
               label="Título"
               value={formData.title}
-              onChangeText={text => setFormData(prev => ({ ...prev, title: text }))}
+              onChangeText={text => handleChange('title', text)}
               style={styles.input}
               theme={{
                 colors: {
@@ -97,7 +100,7 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             <TextInput
               label="Descrição"
               value={formData.description}
-              onChangeText={text => setFormData(prev => ({ ...prev, description: text }))}
+              onChangeText={text => handleChange('description', text)}
               multiline
               style={styles.input}
               theme={{
@@ -109,8 +112,8 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             />
             <TextInput
               label="Desconto (%)"
-              value={formData.discount}
-              onChangeText={text => setFormData(prev => ({ ...prev, discount: text }))}
+              value={formData.discount.toString()}
+              onChangeText={text => handleChange('discount', parseFloat(text))}
               keyboardType="decimal-pad"
               style={styles.input}
               theme={{
@@ -126,17 +129,17 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
               style={styles.input}
               textColor="#6A3805"
             >
-              Válido até: {formData.validUntil.toLocaleDateString()}
+              Válido até: {formData.validUntil}
             </Button>
             {showDatePicker && (
               <DateTimePicker
-                value={formData.validUntil}
+                value={new Date(formData.validUntil)}
                 mode="date"
                 display="default"
                 onChange={(event, selectedDate) => {
                   setShowDatePicker(false);
                   if (selectedDate) {
-                    setFormData(prev => ({ ...prev, validUntil: selectedDate }));
+                    handleChange('validUntil', selectedDate.toISOString().split('T')[0]);
                   }
                 }}
               />
@@ -145,13 +148,15 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
               <Text style={styles.switchLabel}>Ativa</Text>
               <Switch
                 value={formData.isActive}
-                onValueChange={value => setFormData(prev => ({ ...prev, isActive: value }))}
+                onValueChange={value => handleChange('isActive', value)}
                 color="#de9606"
               />
             </View>
+            {loading && <Text>Loading...</Text>}
+            {error && <Text>Error: {error}</Text>}
             <Button
               mode="contained"
-              onPress={handleSave}
+              onPress={handleSubmit}
               style={styles.button}
               buttonColor="#de9606"
               textColor="#fff"
