@@ -20,21 +20,26 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
     title: '',
     description: '',
     discount: 0,
-    validUntil: '',
-    isActive: true,
+    start_date: '',
+    end_date: '',
+    is_active: true,
   });
   const [error, setError] = useState<string | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    
     if (initialData) {
       setFormData({
         id: initialData.id,
         title: initialData.title,
         description: initialData.description,
         discount: initialData.discount,
-        validUntil: initialData.validUntil,
-        isActive: initialData.isActive,
+        start_date: initialData.start_date,
+        end_date: initialData.end_date,
+        is_active: initialData.is_active,
       });
     } else {
       setFormData({
@@ -42,8 +47,9 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
         title: '',
         description: '',
         discount: 0,
-        validUntil: '',
-        isActive: true,
+        start_date: today,
+        end_date: today,
+        is_active: true,
       });
     }
   }, [initialData, visible]);
@@ -52,23 +58,73 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validateDates = (start_date: string, end_date: string): boolean => {
+    const startDate = new Date(start_date);
+    const endDate = new Date(end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return startDate >= today && endDate > startDate;
+  };
+
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      setError('O título é obrigatório');
+      return false;
+    }
+    if (!formData.description.trim()) {
+      setError('A descrição é obrigatória');
+      return false;
+    }
+    if (isNaN(formData.discount) || formData.discount <= 0 || formData.discount > 100) {
+      setError('O desconto deve estar entre 0 e 100');
+      return false;
+    }
+    if (!formData.start_date || !formData.end_date) {
+      setError('As datas são obrigatórias');
+      return false;
+    }
+    if (!validateDates(formData.start_date, formData.end_date)) {
+      setError('A data inicial deve ser hoje ou posterior e a data final deve ser posterior à inicial');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
 
     try {
+      if (!validateForm()) {
+        setLoading(false);
+        return;
+      }
+
       const { id, ...data } = formData;
       if (id) {
         await updatePromotion(id, data);
       } else {
         await createPromotion(data);
       }
+      setError(null);
       onSave();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar promoção');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Erro ao salvar promoção. Verifique os dados e tente novamente.');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (!loading) {
+      setError(null);
+      onClose();
     }
   };
 
@@ -77,7 +133,7 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
+      onRequestClose={() => !loading && handleCloseModal()}
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
@@ -125,21 +181,44 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             />
             <Button
               mode="outlined"
-              onPress={() => setShowDatePicker(true)}
+              onPress={() => setShowStartDatePicker(true)}
               style={styles.input}
               textColor="#6A3805"
             >
-              Válido até: {formData.validUntil}
+              Data inicial: {formData.start_date}
             </Button>
-            {showDatePicker && (
+            <Button
+              mode="outlined"
+              onPress={() => setShowEndDatePicker(true)}
+              style={styles.input}
+              textColor="#6A3805"
+            >
+              Data final: {formData.end_date}
+            </Button>
+            {showStartDatePicker && (
               <DateTimePicker
-                value={new Date(formData.validUntil)}
+                value={formData.start_date ? new Date(formData.start_date) : new Date()}
                 mode="date"
                 display="default"
+                minimumDate={new Date()}
                 onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
+                  setShowStartDatePicker(false);
                   if (selectedDate) {
-                    handleChange('validUntil', selectedDate.toISOString().split('T')[0]);
+                    handleChange('start_date', selectedDate.toISOString().split('T')[0]);
+                  }
+                }}
+              />
+            )}
+            {showEndDatePicker && (
+              <DateTimePicker
+                value={formData.end_date ? new Date(formData.end_date) : new Date()}
+                mode="date"
+                display="default"
+                minimumDate={new Date(formData.start_date || new Date())}
+                onChange={(event, selectedDate) => {
+                  setShowEndDatePicker(false);
+                  if (selectedDate) {
+                    handleChange('end_date', selectedDate.toISOString().split('T')[0]);
                   }
                 }}
               />
@@ -147,13 +226,19 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
             <View style={styles.switchContainer}>
               <Text style={styles.switchLabel}>Ativa</Text>
               <Switch
-                value={formData.isActive}
-                onValueChange={value => handleChange('isActive', value)}
+                value={formData.is_active}    
+                onValueChange={value => handleChange('is_active', value)}    
                 color="#de9606"
               />
             </View>
             {loading && <Text>Loading...</Text>}
-            {error && <Text>Error: {error}</Text>}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>
+                  {error}
+                </Text>
+              </View>
+            )}
             <Button
               mode="contained"
               onPress={handleSubmit}
@@ -161,14 +246,16 @@ export const PromotionFormModal = ({ visible, onClose, onSave, initialData }: Pr
               buttonColor="#de9606"
               textColor="#fff"
               loading={loading}
+              disabled={loading}
             >
               Salvar
             </Button>
             <Button
               mode="outlined"
-              onPress={onClose}
+              onPress={handleCloseModal}
               style={styles.button}
               textColor="#6A3805"
+              disabled={loading}
             >
               Cancelar
             </Button>

@@ -1,12 +1,15 @@
 import { createContext, useContext, useState } from 'react';
+import { PromotionError } from '@/utils/errors';
 
 export interface Promotion {
   id: string;
   title: string;
   description: string;
   discount: number;
-  validUntil: string;
-  isActive: boolean;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  created_at?: string;
 }
 
 interface PromotionContextType {
@@ -14,7 +17,7 @@ interface PromotionContextType {
   loading: boolean;
   error: string | null;
   fetchPromotions: () => Promise<void>;
-  createPromotion: (promotion: Omit<Promotion, 'id' | 'created_at'>) => Promise<void>;
+  createPromotion: (promotion: Omit<Promotion, 'id'>) => Promise<void>;
   updatePromotion: (id: string, promotion: Partial<Promotion>) => Promise<void>;
   deletePromotion: (id: string) => Promise<void>;
   togglePromotionStatus: (id: string) => Promise<void>;
@@ -38,17 +41,14 @@ export function PromotionProvider({ children }) {
         {
           headers: {
             'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
           }
         }
       );
 
       if (!response.ok) {
-        throw new PromotionError(
-          'Falha ao carregar promoções',
-          'FETCH_ERROR',
-          response.status
-        );
+        throw new PromotionError('Falha ao carregar promoções', 'FETCH_ERROR', response.status);
       }
       
       const data = await response.json();
@@ -62,7 +62,7 @@ export function PromotionProvider({ children }) {
     }
   };
 
-  const createPromotion = async (promotion) => {
+  const createPromotion = async (promotion: Omit<Promotion, 'id' | 'created_at'>) => {
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/promotions`,
@@ -74,16 +74,17 @@ export function PromotionProvider({ children }) {
             'Content-Type': 'application/json',
             'Prefer': 'return=minimal'
           },
-          body: JSON.stringify(promotion)
+          body: JSON.stringify({
+            ...promotion,
+            is_active: promotion.is_active ?? true,
+            start_date: new Date(promotion.start_date).toISOString(),
+            end_date: new Date(promotion.end_date).toISOString()
+          })
         }
       );
 
       if (!response.ok) {
-        throw new PromotionError(
-          'Falha ao criar promoção',
-          'CREATE_ERROR',
-          response.status
-        );
+        throw new PromotionError('Falha ao criar promoção', 'CREATE_ERROR', response.status);
       }
 
       await fetchPromotions();
@@ -98,42 +99,58 @@ export function PromotionProvider({ children }) {
     try {
       if (!id) throw new PromotionError('ID da promoção é necessário', 'UPDATE_ERROR');
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/promotions?id=eq.${id}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation' // Changed from 'return=minimal' to get updated data
-        },
-        body: JSON.stringify({
-          ...promotion,
-          updated_at: new Date().toISOString()
-        })
-      });
+      const apiData = {
+        ...(promotion.title && { title: promotion.title }),
+        ...(promotion.description && { description: promotion.description }),
+        ...(promotion.discount && { discount: promotion.discount }),
+        ...(promotion.start_date && { start_date: new Date(promotion.start_date).toISOString() }),
+        ...(promotion.end_date && { end_date: new Date(promotion.end_date).toISOString() }),
+        ...(typeof promotion.is_active !== 'undefined' && { is_active: promotion.is_active })
+      };
+
+      console.log('Updating promotion:', { id, data: apiData });
+
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/promotions?id=eq.${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(apiData)
+        }
+      );
+
+      const responseData = await response.text();
+      console.log('API Response:', response.status, responseData);
 
       if (!response.ok) {
-        const errorData = await response.json();
         throw new PromotionError(
-          errorData.message || 'Falha ao atualizar promoção',
+          `Falha ao atualizar promoção: ${responseData}`,
           'UPDATE_ERROR',
           response.status
         );
       }
 
-      const updatedData = await response.json();
-      
-      // Update local state immediately
-      setPromotions(current => 
-        current.map(p => p.id === id ? { ...p, ...updatedData[0] } : p)
-      );
-      
-      // Refresh data from server to ensure consistency
+      const updatedData = responseData ? JSON.parse(responseData) : null;
+      if (updatedData && updatedData[0]) {
+        setPromotions(current => 
+          current.map(p => p.id === id ? { ...p, ...updatedData[0] } : p)
+        );
+      }
+
       await fetchPromotions();
       setError(null);
     } catch (err) {
-      console.error('Update error:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar promoção');
+      console.error('Update error details:', err);
+      if (err instanceof PromotionError) {
+        setError(err.message);
+      } else {
+        setError('Erro inesperado ao atualizar promoção. Tente novamente.');
+      }
       throw err;
     }
   };
@@ -166,7 +183,7 @@ export function PromotionProvider({ children }) {
 
       const updatedPromotion = {
         ...promotion,
-        isActive: !promotion.isActive, // Fix property name
+        is_active: !promotion.is_active,
       };
 
       await updatePromotion(id, updatedPromotion);
@@ -177,7 +194,7 @@ export function PromotionProvider({ children }) {
   };
 
   const getActivePromotions = () => {
-    return promotions.filter(promotion => promotion.isActive);
+    return promotions.filter(promotion => promotion.is_active);
   };
 
   return (
@@ -190,7 +207,7 @@ export function PromotionProvider({ children }) {
       updatePromotion,
       deletePromotion,
       togglePromotionStatus,
-      getActivePromotions // Add this new method
+      getActivePromotions
     }}>
       {children}
     </PromotionContext.Provider>

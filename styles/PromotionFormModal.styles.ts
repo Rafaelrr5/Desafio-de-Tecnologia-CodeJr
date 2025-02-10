@@ -45,4 +45,14 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6A3805',
   },
+  errorContainer: {
+    backgroundColor: '#ffebee',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  errorText: {
+    color: '#d32f2f',
+    fontSize: 14,
+  },
 });

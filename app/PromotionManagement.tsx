@@ -57,7 +57,6 @@ const PromotionManagement = () => {
   };
 
   const handleEdit = (promotion: Promotion) => {
-    // Show edit modal
     setEditingPromotion(promotion);
     setModalVisible(true);
   };
@@ -71,18 +70,14 @@ const PromotionManagement = () => {
    * Gerencia o salvamento de uma promoção (nova ou existente)
    * @param promotion Dados da promoção a ser salva
    */
-  const handleSave = async (promotion: Promotion) => {
+  const handleSave = async () => {
     try {
-      if (editingPromotion) {
-        await updatePromotion(promotion.id, promotion);
-      } else {
-        await createPromotion(promotion);
-      }
       await fetchPromotions(); // Refresh promotions after changes
       setModalVisible(false);
+      setEditingPromotion(null);
     } catch (error) {
-      console.error('Error saving promotion:', error);
-      Alert.alert('Erro', 'Não foi possível salvar a promoção.');
+      console.error('Error refreshing promotions:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar a lista de promoções.');
     }
   };
 
@@ -107,13 +102,13 @@ const PromotionManagement = () => {
             <Card.Content>
               <View style={styles.promoHeader}>
                 <Text style={styles.cardTitle}>{promo.title}</Text>
-                <Text style={[styles.status, { color: promo.isActive ? '#de9606' : '#D9534F' }]}>
-                  {promo.isActive ? 'Ativa' : 'Inativa'}
+                <Text style={[styles.status, { color: promo.is_active ? '#de9606' : '#D9534F' }]}>
+                  {promo.is_active ? 'Ativa' : 'Inativa'}
                 </Text>
               </View>
               <Text style={styles.description}>{promo.description}</Text>
               <Text style={styles.details}>Desconto: {promo.discount}%</Text>
-              <Text style={styles.details}>Válido até: {promo.validUntil}</Text>
+              <Text style={styles.details}>Válido até: {promo.valid_until}</Text>
             </Card.Content>
             <Card.Actions>
               <Button 
@@ -144,7 +139,10 @@ const PromotionManagement = () => {
       />
       <PromotionFormModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+          setEditingPromotion(null);
+        }}
         onSave={handleSave}
         initialData={editingPromotion}
       />
