@@ -24,27 +24,28 @@ export default function RootLayout() {
   });
   const [loading, setLoading] = useState(true);
   const [initialRoute, setInitialRoute] = useState<'/(tabs)' | '/login'>('/login');
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     checkSession();
 
-    // Configuração do listener de estado de autenticação
-    // Redireciona automaticamente baseado na sessão do usuário
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setInitialRoute('/(tabs)');
-        router.replace('/(tabs)');
+        if (isMounted) {
+          router.replace('/(tabs)');
+        }
       } else {
         setInitialRoute('/login');
-        router.replace('/login');
+        if (isMounted) {
+          router.replace('/login');
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isMounted]);
 
-  // Verifica se existe uma sessão ativa ao iniciar o app
-  // Define a rota inicial com base no estado da autenticação
   const checkSession = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -58,14 +59,16 @@ export default function RootLayout() {
     }
   };
 
-  // Aguarda o carregamento das fontes antes de esconder a tela de splash
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
-  // Exibe loading enquanto os recursos iniciais são carregados
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   if (!loaded || loading) {
     return (
       <View style={styles.container}>
@@ -74,7 +77,6 @@ export default function RootLayout() {
     );
   }
 
-  // Renderiza a estrutura principal do app com provedores de contexto
   return (
     <GestureHandlerRootView style={styles.container}>
       <SessionContextProvider supabaseClient={supabase}>
