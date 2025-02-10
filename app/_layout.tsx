@@ -14,6 +14,7 @@ import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { CartProvider } from '@/contexts/cartContext';
 import { getSession } from '@/services/auth';
 import { layoutStyles } from '@/styles/layout.styles';
+import { PromotionProvider } from '@/contexts/promotionContext';
 
 // Impede que a tela de splash seja escondida automaticamente
 SplashScreen.preventAutoHideAsync();
@@ -80,48 +81,50 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={layoutStyles.container}>
-      <SessionContextProvider supabaseClient={supabase}>
-        <CartProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <SafeAreaProvider>
-              <Stack 
-                screenOptions={{ headerShown: false }}
-                initialRouteName={hasSession ? '(tabs)' : 'login'}
-              >
-                <Stack.Screen
-                  name="(tabs)"
-                  options={{
-                    // Prevent going back to login
-                    gestureEnabled: false
-                  }}
-                />
-                <Stack.Screen 
-                  name="login"
-                  options={{ 
-                    headerShown: false,
-                    presentation: 'modal',
-                    // Prevent going back if not logged in
-                    gestureEnabled: hasSession
-                  }} 
-                />
-                <Stack.Screen 
-                  name="register"
-                  options={{ 
-                    headerShown: false,
-                    presentation: 'modal'
-                  }} 
-                />
-                <Stack.Screen 
-                  name="BeerDetailsModal"
-                  options={{ presentation: 'modal' }} 
-                />
-                <Stack.Screen name="forgotpass" />
-              </Stack>
-              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-            </SafeAreaProvider>
-          </ThemeProvider>
-        </CartProvider>
-      </SessionContextProvider>
+      <PromotionProvider>
+        <SessionContextProvider supabaseClient={supabase}>
+          <CartProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <SafeAreaProvider>
+                <Stack 
+                  screenOptions={{ headerShown: false }}
+                  initialRouteName={hasSession ? '(tabs)' : 'login'}
+                >
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{
+                      // Prevent going back to login
+                      gestureEnabled: false
+                    }}
+                  />
+                  <Stack.Screen 
+                    name="login"
+                    options={{ 
+                      headerShown: false,
+                      presentation: 'modal',
+                      // Prevent going back if not logged in
+                      gestureEnabled: hasSession
+                    }} 
+                  />
+                  <Stack.Screen 
+                    name="register"
+                    options={{ 
+                      headerShown: false,
+                      presentation: 'modal'
+                    }} 
+                  />
+                  <Stack.Screen 
+                    name="BeerDetailsModal"
+                    options={{ presentation: 'modal' }} 
+                  />
+                  <Stack.Screen name="forgotpass" />
+                </Stack>
+                <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              </SafeAreaProvider>
+            </ThemeProvider>
+          </CartProvider>
+        </SessionContextProvider>
+      </PromotionProvider>
     </GestureHandlerRootView>
   );
 }

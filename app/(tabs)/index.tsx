@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
-import { supabase } from '@/lib/supabase';
+import { usePromotions } from '../../contexts/promotionContext';
 
 // Cores da paleta
 const colors = {
@@ -17,27 +17,31 @@ const colors = {
 const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=';
 
 const HomeScreen = () => {
+  const { getActivePromotions, loading: promotionsLoading, fetchPromotions } = usePromotions();
   const [featuredBeers, setFeaturedBeers] = useState([]);
-  const [promotions, setPromotions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        await fetchPromotions();
         
-      let { data: beers, error } = await supabase
-        .from('beers')
-        .select('*')
-       
-        setFeaturedBeers(beers || []);
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/beers?select=*`,
+          {
+            headers: {
+              'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`
+            }
+          }
+        );
 
-        let { data: promotions, error: promotionsError } = await supabase
-          .from('promotions')
-          .select('*')
-         
-        if (promotionsError) throw promotionsError;
-        setPromotions(promotions || []);
- 
+        if (!response.ok) {
+          throw new Error('Failed to fetch beers');
+        }
+
+        const beers = await response.json();
+        setFeaturedBeers(beers || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -47,6 +51,8 @@ const HomeScreen = () => {
 
     fetchData();
   }, []);
+
+  const activePromotions = getActivePromotions();
 
   if (isLoading) {
     return (
@@ -104,17 +110,18 @@ const HomeScreen = () => {
 
             <ThemedText type="title" style={styles.sectionTitle}>Promoções</ThemedText>
             <FlatList
-              data={promotions}
+              data={activePromotions}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.promotionCard}>
-                  <Image 
-                    source={{ uri: item.image_url || 'https://default-image-url.com/placeholder.jpg' }} 
-                    style={styles.promotionImage} 
-                  />
                   <View style={styles.promotionTextContainer}>
                     <ThemedText style={styles.promotionTitle}>{item.title}</ThemedText>
-                    <ThemedText style={styles.promotionDescription}>{item.description}</ThemedText>
+                    <ThemedText style={styles.promotionDescription}>
+                      {item.description}
+                    </ThemedText>
+                    <ThemedText style={styles.promotionDiscount}>
+                      Desconto: {item.discount}%
+                    </ThemedText>
                   </View>
                 </TouchableOpacity>
               )}
@@ -221,6 +228,10 @@ const styles = StyleSheet.create({
   promotionDescription: {
     fontSize: 14,
     color: '#6d5d58',
+  },
+  promotionDiscount: {
+    fontSize: 14,
+    color: colors.primary,
   },
 });
 
