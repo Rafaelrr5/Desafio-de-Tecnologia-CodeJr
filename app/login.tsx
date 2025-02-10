@@ -2,47 +2,32 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Link, router } from 'expo-router';
+import { signIn } from '@/services/auth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const API_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const API_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Por favor, preencha todos os campos');
+      setError('Por favor, preencha todos os campos');
       return;
     }
 
     setLoading(true);
-    try {
-      const response = await fetch(`${API_URL}/auth/v1/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': API_KEY,
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          grant_type: 'password',
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error_description || data.message || 'Erro no login');
-      }
-      // Optionally store access token and refresh token from data
+    setError('');
+    
+    const response = await signIn(email, password);
+    
+    if (response.success) {
       router.replace('/(tabs)');
-    } catch (error: any) {
-      alert(error.message);
-      console.error('Error logging in:', error.message);
-    } finally {
-      setLoading(false);
+    } else {
+      setError(response.error || 'Erro ao fazer login');
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -86,6 +71,8 @@ export default function Login() {
           {loading ? 'Entrando...' : 'Entrar'}
         </Text>
       </TouchableOpacity>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <Link href="/forgotpass" asChild>
         <TouchableOpacity>
@@ -163,5 +150,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#de9606',
     marginTop: 16,
-  }
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 12,
+    textAlign: 'center',
+  },
 });

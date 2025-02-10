@@ -12,6 +12,7 @@ import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { CartProvider } from '@/contexts/cartContext';
+import { getSession } from '@/services/auth';
 
 // Impede que a tela de splash seja escondida automaticamente
 SplashScreen.preventAutoHideAsync();
@@ -23,7 +24,7 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
   const [loading, setLoading] = useState(true);
-  const [initialRoute, setInitialRoute] = useState<'/(tabs)' | '/login'>('/login');
+  const [hasSession, setHasSession] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -31,12 +32,12 @@ export default function RootLayout() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setInitialRoute('/(tabs)');
+        setHasSession(true);
         if (isMounted) {
           router.replace('/(tabs)');
         }
       } else {
-        setInitialRoute('/login');
+        setHasSession(false);
         if (isMounted) {
           router.replace('/login');
         }
@@ -48,12 +49,11 @@ export default function RootLayout() {
 
   const checkSession = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setInitialRoute('/(tabs)');
-      }
+      const { success, session } = await getSession();
+      setHasSession(success && !!session);
     } catch (error) {
       console.error('Session check error:', error);
+      setHasSession(false);
     } finally {
       setLoading(false);
     }
@@ -83,13 +83,24 @@ export default function RootLayout() {
         <CartProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <SafeAreaProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
+              <Stack 
+                screenOptions={{ headerShown: false }}
+                initialRouteName={hasSession ? '(tabs)' : 'login'}
+              >
+                <Stack.Screen
+                  name="(tabs)"
+                  options={{
+                    // Prevent going back to login
+                    gestureEnabled: false
+                  }}
+                />
                 <Stack.Screen 
                   name="login"
                   options={{ 
                     headerShown: false,
-                    presentation: 'modal'
+                    presentation: 'modal',
+                    // Prevent going back if not logged in
+                    gestureEnabled: hasSession
                   }} 
                 />
                 <Stack.Screen 

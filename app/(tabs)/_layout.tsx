@@ -8,6 +8,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
+import { signOut } from '@/services/auth';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -25,8 +26,12 @@ export default function TabLayout() {
           text: 'Sim',
           onPress: async () => {
             try {
-              await supabase.auth.signOut();
-              router.replace('/login');
+              const response = await signOut();
+              if (response.success) {
+                router.replace('/login');
+              } else {
+                console.error('Logout error:', response.error);
+              }
             } catch (error) {
               console.error('Logout error:', error);
             }
