@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Link, router } from 'expo-router';
-import { supabase } from '@/lib/supabase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const API_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const API_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -17,11 +18,26 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const response = await fetch(`${API_URL}/auth/v1/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': API_KEY,
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+          grant_type: 'password',
+        }),
+      });
 
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error_description || data.message || 'Erro no login');
+      }
+      // Optionally store access token and refresh token from data
       router.replace('/(tabs)');
-    } catch (error) {
+    } catch (error: any) {
       alert(error.message);
       console.error('Error logging in:', error.message);
     } finally {
