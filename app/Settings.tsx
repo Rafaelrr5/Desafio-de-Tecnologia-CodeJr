@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Card } from 'react-native-paper';
+import { Card, List } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -63,6 +63,54 @@ const Settings = () => {
             </TouchableOpacity>
           )
         ))}
+
+        <View style={styles.separator} />
+
+        <List.Accordion
+          title="Sobre o ChoppVerse"
+          description="Conheça nossa história e valores"
+          left={props => <List.Icon {...props} icon="beer" color="#de9606" />}
+          style={styles.accordion}
+          theme={{
+            colors: {
+              primary: '#de9606',
+            },
+          }}
+        >
+          <List.Item
+            title="Nossa Missão"
+            description="Proporcionar a melhor experiência cervejeira aos nossos clientes, oferecendo produtos de qualidade e um serviço excepcional."
+            descriptionNumberOfLines={4}
+            style={styles.accordionItem}
+            titleStyle={styles.accordionTitle}
+            descriptionStyle={styles.accordionDescription}
+            left={props => <List.Icon {...props} icon="target" color="#de9606" />}
+          />
+          <List.Item
+            title="Nossa Visão"
+            description="Ser reconhecida como a melhor plataforma de cervejas artesanais do Brasil, inspirando e conectando pessoas através da cultura cervejeira."
+            descriptionNumberOfLines={4}
+            style={styles.accordionItem}
+            titleStyle={styles.accordionTitle}
+            descriptionStyle={styles.accordionDescription}
+            left={props => <List.Icon {...props} icon="eye" color="#de9606" />}
+          />
+          <List.Item
+            title="Nossos Valores"
+            description={[
+              "✦ Qualidade e excelência",
+              "✦ Paixão pela cerveja",
+              "✦ Inovação constante",
+              "✦ Responsabilidade social",
+              "✦ Satisfação do cliente"
+            ].join('\n')}
+            descriptionNumberOfLines={10}
+            style={styles.accordionItem}
+            titleStyle={styles.accordionTitle}
+            descriptionStyle={[styles.accordionDescription, { lineHeight: 24 }]}
+            left={props => <List.Icon {...props} icon="star" color="#de9606" />}
+          />
+        </List.Accordion>
 
         <TouchableOpacity 
           style={styles.logoutButton} 

@@ -59,4 +59,31 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  accordion: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  accordionItem: {
+    backgroundColor: '#fff8ec',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  separator: {
+    height: 16,
+  },
+  accordionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6A3805',
+    marginBottom: 4,
+  },
+  accordionDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#6d5d58',
+    fontStyle: 'italic',
+  },
 });
