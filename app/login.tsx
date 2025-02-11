@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Link, router } from 'expo-router';
-import { signIn } from '@/services/auth';
+import { Link } from 'expo-router';
+import { signIn, checkStoredUser, handleSuccessfulLogin } from '@/services/auth';
 import { loginStyles } from '@/styles/login.styles';
 
 export default function Login() {
@@ -10,6 +10,10 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    checkStoredUser();
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -22,8 +26,8 @@ export default function Login() {
     
     const response = await signIn(email, password);
     
-    if (response.success) {
-      router.replace('/(tabs)');
+    if (response.success && response.session) {
+      await handleSuccessfulLogin(response.session);
     } else {
       setError(response.error || 'Erro ao fazer login');
     }

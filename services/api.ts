@@ -9,31 +9,6 @@ const headers = {
 };
 
 export const api = {
-  async signIn(email: string, password: string) {
-    const response = await fetch(`${API_URL}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ email, password }),
-    });
-    return response.json();
-  },
-
-  async signUp(email: string, password: string) {
-    const response = await fetch(`${API_URL}/auth/v1/signup`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ email, password }),
-    });
-    return response.json();
-  },
-
-  async signOut(token: string) {
-    const response = await fetch(`${API_URL}/auth/v1/logout`, {
-      method: 'POST',
-      headers: { ...headers, 'Authorization': `Bearer ${token}` },
-    });
-    return response.json();
-  },
 
   async getBeers() {
     const response = await fetch(`${API_URL}/rest/v1/beers?select=*`, {
@@ -154,36 +129,5 @@ export const api = {
       headers,
     });
     return response.json();
-  }
-};
-
-interface AuthResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
-
-export const getUserProfile = async (): Promise<AuthResponse> => {
-  try {
-    const response = await fetch(`${API_URL}/auth/v1/user`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': API_KEY!,
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch user profile');
-    }
-
-    const data = await response.json();
-    return { success: true, data };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message
-    };
   }
 };

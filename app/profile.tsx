@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getUserProfile } from '@/services/api';
 
 export default function ProfileScreen() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -12,12 +12,13 @@ export default function ProfileScreen() {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const { success, data } = await getUserProfile();
-        if (success && data) {
-          setUserEmail(data.email);
+        const storedUser = await AsyncStorage.getItem('@user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          setUserEmail(userData.user?.email || userData.email);
         }
       } catch (error) {
-        console.error('Error loading profile:', error);
+        console.error('Error loading profile from storage:', error);
       } finally {
         setLoading(false);
       }
