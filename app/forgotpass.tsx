@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Link } from 'expo-router';
+import { styles } from '@/styles/ForgotPassword.styles';
 
 const ForgotPasswordScreen = ({ }) => {
   const [email, setEmail] = useState('');
@@ -46,69 +47,5 @@ const ForgotPasswordScreen = ({ }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff8ec', // Bege claro
-    padding: 20,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#de9606', // Laranja
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6d5d58', // Marrom suave
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#333',
-  },
-  button: {
-    width: '100%',
-    backgroundColor: '#de9606', // Laranja
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  backToLoginText: {
-    fontSize: 14,
-    color: '#de9606',
-    textDecorationLine: 'underline',
-    marginTop: 16,
-  },
-});
 
 export default ForgotPasswordScreen;

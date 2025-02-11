@@ -41,7 +41,7 @@ export const api = {
     return response.json();
   },
 
-  // Beer CRUD operations
+  // Crud da cerveja
   async createBeer(beer: Beer) {
     const response = await fetch(`${API_URL}/rest/v1/beers`, {
       method: 'POST',
@@ -87,12 +87,11 @@ export const api = {
         'Prefer': 'return=minimal',
       },
     });
-    // Return true if successful, throw error otherwise
     if (response.ok) return true;
     throw new Error('Failed to delete beer');
   },
 
-  // Promotion CRUD operations
+  // Operações CRUD para promoções
   async createPromotion(promotion: Promotion) {
     const response = await fetch(`${API_URL}/rest/v1/promotions`, {
       method: 'POST',
@@ -119,7 +118,6 @@ export const api = {
         'Prefer': 'return=minimal',
       },
     });
-    // Return true if successful, throw error otherwise
     if (response.ok) return true;
     throw new Error('Failed to delete promotion');
   },

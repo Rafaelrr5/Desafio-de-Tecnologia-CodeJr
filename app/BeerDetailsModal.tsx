@@ -18,7 +18,7 @@ const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/c
 
 export default function BeerDetailsModal() {
   const params = useLocalSearchParams();
-  const beerId = params.id as string; // Changed from Number(params.id)
+  const beerId = params.id as string;
   const [beer, setBeer] = useState<Beer | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -27,9 +27,9 @@ export default function BeerDetailsModal() {
 
   useEffect(() => {
     /**
-     * Carrega os detalhes da cerveja a partir do ID
-     * Atualiza o estado com os dados recebidos da API
-     * Usa uma imagem padrão caso a cerveja não tenha imagem
+     Carrega os detalhes da cerveja a partir do ID,
+     Atualiza o estado com os dados recebidos da API e
+     Usa uma imagem padrão caso a cerveja não tenha imagem
      */
     async function loadBeer() {
       if (!beerId) {
@@ -55,8 +55,8 @@ export default function BeerDetailsModal() {
   }, [beerId]);
 
   /**
-   * Gerencia o gesto de arrastar para baixo
-   * Permite fechar o modal quando o usuário arrasta além do limite
+   Gerencia o gesto de arrastar para baixo
+   Permite fechar o modal quando o usuário arrasta além do limite
    */
   const gesture = Gesture.Pan()
     .onUpdate((event) => {
@@ -71,7 +71,7 @@ export default function BeerDetailsModal() {
         translateY.value = withSpring(0);
       }
     })
-    .simultaneousWithExternalGesture(Gesture.Native());  // Allow simultaneous scrolling
+    .simultaneousWithExternalGesture(Gesture.Native());
 
   const rStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],

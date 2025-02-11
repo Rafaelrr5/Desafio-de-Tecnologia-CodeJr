@@ -29,11 +29,6 @@ const PromotionManagement = () => {
   if (loading) return <View><Text>Loading...</Text></View>;
   if (error) return <View><Text>Error: {error}</Text></View>;
 
-  /**
-   * Gerencia a exclusão de uma promoção
-   * Exibe um diálogo de confirmação antes de excluir
-   * @param id ID da promoção a ser excluída
-   */
   const handleDelete = async (id: string) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -66,13 +61,9 @@ const PromotionManagement = () => {
     setModalVisible(true);
   };
 
-  /**
-   * Gerencia o salvamento de uma promoção (nova ou existente)
-   * @param promotion Dados da promoção a ser salva
-   */
   const handleSave = async () => {
     try {
-      await fetchPromotions(); // Refresh promotions after changes
+      await fetchPromotions(); 
       setModalVisible(false);
       setEditingPromotion(null);
     } catch (error) {

@@ -7,14 +7,6 @@ import { router } from 'expo-router';
 import { api } from '@/services/api';
 import { BeerFormModal } from '@/components/BeerFormModal';
 
-interface Beer {
-  id: string;
-  name: string;
-  price: number;
-  image_url: string; // Changed from imageUrl to image_url to match DB schema
-  stock: number;  // Add stock to interface
-}
-
 const BeerManagement = () => {
   const [beers, setBeers] = useState<Beer[]>([]);
   const [editingBeer, setEditingBeer] = useState<Beer | null>(null);
@@ -28,16 +20,14 @@ const BeerManagement = () => {
   const loadBeers = async () => {
     try {
       const data = await api.getBeers();
-      // Handle the case where data might be null or undefined
-      setBeers(Array.isArray(data) ? data : []);
+      setBeers(Array.isArray(data) ? data : []); // Atualiza a lista de cervejas
     } catch (error) {
       console.error('Error loading beers:', error);
       Alert.alert('Erro', 'Não foi possível carregar as cervejas.');
-      setBeers([]); // Set empty array on error
+      setBeers([]); // caso dê erro, limpa a lista
     }
   };
 
-  // Função para deletar uma cerveja
   const handleDelete = async (id: string) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -50,7 +40,7 @@ const BeerManagement = () => {
           onPress: async () => {
             try {
               await api.deleteBeer(id);
-              // Refresh beer list
+              // Atualiza a lista de cervejas após a exclusão
               loadBeers();
             } catch (error) {
               console.error('Error deleting beer:', error);
@@ -64,7 +54,6 @@ const BeerManagement = () => {
 
   // Função para editar uma cerveja
   const handleEdit = (beer: Beer) => {
-    // Show edit modal
     setEditingBeer(beer);
     setModalVisible(true);
   };
@@ -78,17 +67,14 @@ const BeerManagement = () => {
   // Função para salvar uma cerveja (nova ou editada)
   const handleSave = async (beer: Beer) => {
     try {
-      console.log('Saving beer:', beer); // Debug log
       if (editingBeer) {
         await api.updateBeer(beer.id, beer);
       } else {
         const result = await api.createBeer(beer);
-        console.log('Create result:', result); // Debug log
       }
       setModalVisible(false);
       loadBeers();
     } catch (error) {
-      console.error('Error saving beer:', error);
       Alert.alert('Erro', 'Não foi possível salvar a cerveja.');
     }
   };
@@ -114,7 +100,7 @@ const BeerManagement = () => {
             <Card.Content>
               <View style={styles.beerContent}>
                 <Image 
-                  source={{ uri: beer.image_url }} // Update to use image_url
+                  source={{ uri: beer.image_url }}
                   style={styles.beerImage}
                   resizeMode="contain"
                 />

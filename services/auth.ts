@@ -6,7 +6,6 @@ import { AuthResponse } from '@/types/auth';
 const API_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const API_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-// Adicionar função para gerenciar o token
 let accessToken: string | null = null;
 
 export const setAccessToken = (token: string | null) => {
@@ -75,10 +74,8 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 
 export const signOut = async (): Promise<AuthResponse> => {
   try {
-    // First, clear local storage to ensure user data is removed
     await AsyncStorage.multiRemove(['@user', '@userToken']);
     
-    // Only attempt server logout if we have a token
     if (accessToken) {
       try {
         const controller = new AbortController();
@@ -96,18 +93,15 @@ export const signOut = async (): Promise<AuthResponse> => {
 
         clearTimeout(timeoutId);
       } catch (serverError) {
-        // Log but don't throw - we want to continue with local cleanup
         console.warn('Server logout failed:', serverError);
       }
     }
 
-    // Clear access token last
     setAccessToken(null);
 
     return { success: true };
   } catch (error: any) {
     console.error('Logout error:', error);
-    // Even if there's an error, we want to clear local state
     try {
       await AsyncStorage.clear();
       setAccessToken(null);
