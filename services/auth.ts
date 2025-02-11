@@ -110,29 +110,27 @@ export const signOut = async (): Promise<AuthResponse> => {
   }
 };
 
+export const handleLogout = async () => {
+  try {
+    // Adicione aqui sua lógica de logout com a API
+    await Promise.resolve(); // Substitua com sua chamada real
+    return true;
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+    return false;
+  }
+};
+
 export const handleLogoutConfirmation = () => {
   Alert.alert(
-    'Confirmar Saída',
+    'Sair',
     'Tem certeza que deseja sair?',
     [
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
+      { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Sim',
-        onPress: async () => {
-          try {
-            const response = await signOut();
-            if (response.success) {
-              router.replace('/login');
-            } else {
-              console.error('Logout error:', response.error);
-            }
-          } catch (error) {
-            console.error('Logout error:', error);
-          }
-        },
+        onPress: () => router.push('/logout'),
+        style: 'destructive'
       },
     ],
     { cancelable: true }
