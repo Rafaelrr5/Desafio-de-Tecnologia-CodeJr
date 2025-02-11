@@ -41,7 +41,11 @@ export default function RootLayout() {
       } else {
         setHasSession(false);
         if (isMounted) {
-          router.replace('/login');
+          // Força redirecionamento para login e reseta a navegação
+          router.reset({
+            index: 0,
+            routes: [{ name: 'login' }],
+          });
         }
       }
     });
@@ -118,6 +122,10 @@ export default function RootLayout() {
                     options={{ presentation: 'modal' }} 
                   />
                   <Stack.Screen name="forgotpass" />
+                  <Stack.Screen name="notifications" options={{ presentation: 'modal' }} />
+                  <Stack.Screen name="security" options={{ presentation: 'modal' }} />
+                  <Stack.Screen name="payment" options={{ presentation: 'modal' }} />
+                  <Stack.Screen name="help" options={{ presentation: 'modal' }} />
                 </Stack>
                 <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
               </SafeAreaProvider>

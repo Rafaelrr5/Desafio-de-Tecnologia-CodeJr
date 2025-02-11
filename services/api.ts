@@ -156,3 +156,34 @@ export const api = {
     return response.json();
   }
 };
+
+interface AuthResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
+export const getUserProfile = async (): Promise<AuthResponse> => {
+  try {
+    const response = await fetch(`${API_URL}/auth/v1/user`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': API_KEY!,
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user profile');
+    }
+
+    const data = await response.json();
+    return { success: true, data };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};

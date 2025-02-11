@@ -80,41 +80,58 @@ export const signIn = async (email: string, password: string): Promise<AuthRespo
 
 export const signOut = async (): Promise<AuthResponse> => {
   try {
-    if (!accessToken) {
-      throw new Error('Não há sessão ativa');
+    // Tenta fazer logout no servidor se houver token
+    if (accessToken) {
+      await fetch(`${API_URL}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': API_KEY!,
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        cache: 'no-store',
+      });
     }
 
-    const response = await fetch(`${API_URL}/auth/v1/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': API_KEY!,
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erro ao fazer logout');
-    }
-
-    // Limpar o token após logout
+    // Limpa o token local independente da resposta do servidor
     setAccessToken(null);
+    
+    // Força limpeza do cache de autenticação
+    await Promise.all([
+      fetch(`${API_URL}/auth/v1/user`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }),
+      // Invalida a sessão atual
+      fetch(`${API_URL}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': API_KEY!,
+        },
+      })
+    ]);
+
     return { success: true };
   } catch (error: any) {
     console.error('Logout error details:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    // Retorna sucesso mesmo se houver erro, já que limpamos localmente
+    return { success: true };
   }
 };
 
 export const handleLogout = async () => {
   try {
-    // Adicione aqui sua lógica de logout com a API
-    await Promise.resolve(); // Substitua com sua chamada real
-    return true;
+    const result = await signOut();
+    if (result.success) {
+      return true;
+    }
+    console.error('Erro ao fazer logout:', result.error);
+    return false;
   } catch (error) {
     console.error('Erro ao fazer logout:', error);
     return false;

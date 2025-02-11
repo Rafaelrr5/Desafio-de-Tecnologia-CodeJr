@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Settings = () => {
@@ -10,27 +10,27 @@ const Settings = () => {
     {
       title: 'Perfil',
       icon: 'person-outline',
-      action: () => console.log('Perfil'),
+      path: '/profile',
     },
     {
       title: 'Notificações',
       icon: 'notifications-outline',
-      action: () => console.log('Notificações'),
+      action: () => console.log('Notificações - Em desenvolvimento'),
     },
     {
       title: 'Segurança',
       icon: 'shield-outline',
-      action: () => console.log('Segurança'),
+      action: () => console.log('Segurança - Em desenvolvimento'),
     },
     {
       title: 'Pagamento',
       icon: 'card-outline',
-      action: () => console.log('Pagamento'),
+      action: () => console.log('Pagamento - Em desenvolvimento'),
     },
     {
       title: 'Ajuda',
       icon: 'help-circle-outline',
-      action: () => console.log('Ajuda'),
+      action: () => console.log('Ajuda - Em desenvolvimento'),
     },
   ];
 
@@ -48,18 +48,35 @@ const Settings = () => {
         </View>
 
         {settingsOptions.map((option, index) => (
-          <TouchableOpacity key={index} onPress={option.action}>
-            <Card style={styles.card}>
-              <Card.Content style={styles.cardContent}>
-                <Ionicons name={option.icon as keyof typeof Ionicons.glyphMap} size={24} color="#de9606" />
-                <Text style={styles.optionText}>{option.title}</Text>
-                <Ionicons name="chevron-forward" size={24} color="#6d5d58" />
-              </Card.Content>
-            </Card>
-          </TouchableOpacity>
+          option.path ? (
+            <Link key={index} href={option.path as any} asChild>
+              <TouchableOpacity>
+                <Card style={styles.card}>
+                  <Card.Content style={styles.cardContent}>
+                    <Ionicons name={option.icon as keyof typeof Ionicons.glyphMap} size={24} color="#de9606" />
+                    <Text style={styles.optionText}>{option.title}</Text>
+                    <Ionicons name="chevron-forward" size={24} color="#6d5d58" />
+                  </Card.Content>
+                </Card>
+              </TouchableOpacity>
+            </Link>
+          ) : (
+            <TouchableOpacity key={index} onPress={option.action}>
+              <Card style={styles.card}>
+                <Card.Content style={styles.cardContent}>
+                  <Ionicons name={option.icon as keyof typeof Ionicons.glyphMap} size={24} color="#de9606" />
+                  <Text style={styles.optionText}>{option.title}</Text>
+                  <Ionicons name="chevron-forward" size={24} color="#6d5d58" />
+                </Card.Content>
+              </Card>
+            </TouchableOpacity>
+          )
         ))}
 
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={() => router.push('/logout')}
+        >
           <Text style={styles.logoutText}>Sair</Text>
         </TouchableOpacity>
       </ScrollView>
