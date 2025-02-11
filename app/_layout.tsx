@@ -80,11 +80,19 @@ export default function RootLayout() {
                     name="BeerDetailsModal"
                     options={{ presentation: 'modal' }} 
                   />
+                  <Stack.Screen 
+                    name="notifications"
+                    options={{ 
+                      headerShown: false,
+                    }} 
+                  />
+                  <Stack.Screen 
+                    name="payment"
+                    options={{ 
+                      headerShown: false,
+                    }} 
+                  />                  
                   <Stack.Screen name="forgotpass" />
-                  <Stack.Screen name="notifications" options={{ presentation: 'modal' }} />
-                  <Stack.Screen name="security" options={{ presentation: 'modal' }} />
-                  <Stack.Screen name="payment" options={{ presentation: 'modal' }} />
-                  <Stack.Screen name="help" options={{ presentation: 'modal' }} />
                 </Stack>
                 <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
               </SafeAreaProvider>

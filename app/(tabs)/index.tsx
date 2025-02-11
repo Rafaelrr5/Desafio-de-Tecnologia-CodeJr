@@ -6,14 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { router } from 'expo-router';
 import { usePromotions } from '../../contexts/promotionContext';
 import { styles } from '../../styles/Index.styles';
-
-// Cores da paleta
-const colors = {
-  primary: '#de9606', // Laranja
-  secondary: '#aa8c66', // Marrom claro
-  background: '#fff8ec', // Bege claro
-  textDark: '#402e32', // Marrom escuro
-};
+import { api } from '@/services/api';
 
 const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=';
 
@@ -26,22 +19,7 @@ const HomeScreen = () => {
     const fetchData = async () => {
       try {
         await fetchPromotions();
-        
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_SUPABASE_URL}/rest/v1/beers?select=*`,
-          {
-            headers: {
-              'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY}`
-            }
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch beers');
-        }
-
-        const beers = await response.json();
+        const beers = await api.getBeers();
         setFeaturedBeers(beers || []);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -88,7 +66,6 @@ const HomeScreen = () => {
         data={[]}
         ListHeaderComponent={
           <ThemedView style={styles.innerContainer}>
-            {/* Seções */}
             <ThemedText type="title" style={styles.title}>Cervejas em Destaque</ThemedText>
             <FlatList
               horizontal
@@ -98,7 +75,6 @@ const HomeScreen = () => {
                 <TouchableOpacity 
                   style={styles.beerCard}
                   onPress={() => {
-                    console.log('Selected beer:', item); // Debug log
                     router.push({
                       pathname: "/BeerDetailsModal",
                       params: { id: item.id }

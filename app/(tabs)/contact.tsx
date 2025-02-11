@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Biblioteca de ícones
+import { FontAwesome } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { styles } from '@/styles/Contact.styles';
 
@@ -17,7 +17,7 @@ const ContactScreen = () => {
       <View style={styles.infoContainer}>
         <View style={styles.infoRow}>
           <FontAwesome name="envelope" size={20} color="#de9606" />
-          <TouchableOpacity onPress={() => Linking.openURL('mailto:contato@cervejaria.com')}>
+          <TouchableOpacity onPress={() => Linking.openURL('mailto:faelrribeiro3@gmail.com')}>
             <Text style={styles.infoText}>contato@cervejaria.com</Text>
           </TouchableOpacity>
         </View>
@@ -34,19 +34,18 @@ const ContactScreen = () => {
           <Text style={styles.infoText}>Rua da Cerveja, 123 - Juiz de Fora, MG</Text>
         </View>
 
-        {/* Redes Sociais */}
         <View style={styles.socialContainer}>
           <TouchableOpacity
             style={styles.socialButton}
-            onPress={() => Linking.openURL('https://facebook.com/cervejaria')}
+            onPress={() => Linking.openURL('https://www.linkedin.com/in/rafael-rocha-ribeiro-581bb2202/')}
           >
-            <FontAwesome name="facebook" size={24} color="#fff" />
-            <Text style={styles.socialText}>Facebook</Text>
+            <FontAwesome name="linkedin" size={24} color="#fff" />
+            <Text style={styles.socialText}>LinkedIn</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.socialButton}
-            onPress={() => Linking.openURL('https://instagram.com/cervejaria')}
+            onPress={() => Linking.openURL('https://www.instagram.com/rrocha.ribeir0/')}
           >
             <FontAwesome name="instagram" size={24} color="#fff" />
             <Text style={styles.socialText}>Instagram</Text>

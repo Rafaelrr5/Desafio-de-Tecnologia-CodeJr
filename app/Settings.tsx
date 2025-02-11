@@ -10,27 +10,17 @@ const Settings = () => {
     {
       title: 'Perfil',
       icon: 'person-outline',
-      path: '/profile',
+      path: '/profile'
     },
     {
       title: 'Notificações',
       icon: 'notifications-outline',
-      action: () => console.log('Notificações - Em desenvolvimento'),
-    },
-    {
-      title: 'Segurança',
-      icon: 'shield-outline',
-      action: () => console.log('Segurança - Em desenvolvimento'),
+      path: '/notifications'
     },
     {
       title: 'Pagamento',
       icon: 'card-outline',
-      action: () => console.log('Pagamento - Em desenvolvimento'),
-    },
-    {
-      title: 'Ajuda',
-      icon: 'help-circle-outline',
-      action: () => console.log('Ajuda - Em desenvolvimento'),
+      path: '/payment'
     },
   ];
 
