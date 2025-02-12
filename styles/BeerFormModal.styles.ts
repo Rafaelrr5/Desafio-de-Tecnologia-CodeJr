@@ -59,4 +59,14 @@ export const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 12,
   },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  checkboxText: {
+    color: '#de9606',
+    fontSize: 16,
+    marginLeft: 8,
+  },
 });

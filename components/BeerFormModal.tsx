@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Modal, Alert, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button, Checkbox } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { styles } from '@/styles/BeerFormModal.styles';
+import { Beer } from '@/types/beer';
 
 const DEFAULT_BEER_IMAGE = 'https://media.istockphoto.com/id/519728153/pt/foto/caneca-de-cerveja.jpg?s=1024x1024&w=is&k=20&c=POKrUPtx9-x7l0jQQLN1qQ8IExxOPvHdq_svWYJwdME=';
 
@@ -16,17 +17,18 @@ interface BeerFormModalProps {
 
 export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFormModalProps) => {
   const [loading, setLoading] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: '',
-    description: '',
-    alcohol: '',
+    description: 'Cerveja artesanal premium',
+    alcohol: '4.5',
     price: '',
     stock: '',
-    ibu: '',
+    ibu: '20',
     temperature: '',
-    volume: '',
-    brewery: '',
+    volume: '355',
+    brewery: 'Cervejaria Local',
     image_url: '',
     is_active: true,
   });
@@ -36,14 +38,14 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
       setFormData({
         name: initialData.name,
         type: initialData.type || '',
-        description: initialData.description || '',
-        alcohol: initialData.alcohol?.toString() || '',
+        description: initialData.description || 'Cerveja artesanal premium',
+        alcohol: initialData.alcohol?.toString() || '4.5',
         price: initialData.price.toString(),
         stock: initialData.stock.toString(),
-        ibu: initialData.ibu?.toString() || '',
+        ibu: initialData.ibu?.toString() || '20',
         temperature: initialData.temperature?.toString() || '',
-        volume: initialData.volume?.toString() || '',
-        brewery: initialData.brewery || '',
+        volume: initialData.volume?.toString() || '355',
+        brewery: initialData.brewery || 'Cervejaria Local',
         image_url: initialData.image_url || '',
         is_active: initialData.is_active ?? true,
       });
@@ -51,14 +53,14 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
       setFormData({
         name: '',
         type: '',
-        description: '',
-        alcohol: '',
+        description: 'Cerveja artesanal premium',
+        alcohol: '4.5',
         price: '',
         stock: '',
-        ibu: '',
+        ibu: '20',
         temperature: '',
-        volume: '',
-        brewery: '',
+        volume: '355',
+        brewery: 'Cervejaria Local',
         image_url: '',
         is_active: true,
       });
@@ -74,37 +76,44 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-    if (!result.canceled) {
-      uploadImage(result.assets[0].uri);
+      if (!result.canceled && result.assets[0].uri) {
+        setLoading(true);
+        await uploadImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível selecionar a imagem');
+      console.error('Image picker error:', error);
     }
   };
 
   // Função para fazer upload da imagem selecionada
   const uploadImage = async (uri: string) => {
     try {
-      setLoading(true);
-      const filename = uri.split('/').pop();
+      const filename = `beer-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      const fileExt = uri.split('.').pop();
+      const filePath = `beers/${filename}.${fileExt}`;
+
       const response = await fetch(uri);
       const blob = await response.blob();
-      const filePath = `beers/${Date.now()}-${filename}`;
-      
-      const { error: uploadError, data } = await supabase
+
+      const { error: uploadError } = await supabase
         .storage
-        .from('images')
+        .from('beer-images')
         .upload(filePath, blob);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase
         .storage
-        .from('images')
+        .from('beer-images')
         .getPublicUrl(filePath);
 
       setFormData(prev => ({ ...prev, image_url: publicUrl }));
@@ -172,29 +181,60 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
           </Text>
 
           <ScrollView style={styles.scrollView}>
-            {initialData ? (
+            <TextInput
+              label="Nome *"
+              value={formData.name}
+              onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
+              style={styles.input}
+              theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
+            />
+            <TextInput
+              label="Tipo *"
+              value={formData.type}
+              onChangeText={text => setFormData(prev => ({ ...prev, type: text }))}
+              style={styles.input}
+              theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
+            />
+            <TextInput
+              label="Preço *"
+              value={formData.price}
+              onChangeText={text => setFormData(prev => ({ ...prev, price: text }))}
+              keyboardType="decimal-pad"
+              style={styles.input}
+              theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
+            />
+            <TextInput
+              label="Estoque *"
+              value={formData.stock}
+              onChangeText={text => setFormData(prev => ({ ...prev, stock: text }))}
+              keyboardType="number-pad"
+              style={styles.input}
+              theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
+            />
+
+            <View style={styles.checkboxContainer}>
+              <Checkbox.Android
+                status={showAdvanced ? 'checked' : 'unchecked'}
+                onPress={() => setShowAdvanced(!showAdvanced)}
+                color="#de9606"
+              />
+              <Text 
+                onPress={() => setShowAdvanced(!showAdvanced)}
+                style={styles.checkboxText}
+              >
+                Informações Avançadas
+              </Text>
+            </View>
+
+            {showAdvanced && (
               <>
-                <TextInput
-                  label="Nome *"
-                  value={formData.name}
-                  onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
-                  style={styles.input}
-                  theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
-                />
-                <TextInput
-                  label="Tipo *"
-                  value={formData.type}
-                  onChangeText={text => setFormData(prev => ({ ...prev, type: text }))}
-                  style={styles.input}
-                  theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
-                />
                 <TextInput
                   label="Descrição"
                   value={formData.description}
                   onChangeText={text => setFormData(prev => ({ ...prev, description: text }))}
+                  style={styles.input}
                   multiline
                   numberOfLines={3}
-                  style={styles.input}
                   theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
                 />
                 <TextInput
@@ -230,68 +270,11 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
                   theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
                 />
                 <TextInput
-                  label="Preço *"
-                  value={formData.price}
-                  onChangeText={text => setFormData(prev => ({ ...prev, price: text }))}
-                  keyboardType="decimal-pad"
-                  style={styles.input}
-                  theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
-                />
-                <TextInput
-                  label="Estoque *"
-                  value={formData.stock}
-                  onChangeText={text => setFormData(prev => ({ ...prev, stock: text }))}
-                  keyboardType="number-pad"
-                  style={styles.input}
-                  theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
-                />
-                <TextInput
                   label="Cervejaria"
                   value={formData.brewery}
                   onChangeText={text => setFormData(prev => ({ ...prev, brewery: text }))}
                   style={styles.input}
                   theme={{ colors: { primary: '#de9606', placeholder: '#6A3805' } }}
-                />
-              </>
-            ) : (
-              <>
-                <TextInput
-                  label="Nome"
-                  value={formData.name}
-                  onChangeText={text => setFormData(prev => ({ ...prev, name: text }))}
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: '#de9606',
-                      placeholder: '#6A3805',
-                    }
-                  }}
-                />
-                <TextInput
-                  label="Preço"
-                  value={formData.price}
-                  onChangeText={text => setFormData(prev => ({ ...prev, price: text }))}
-                  keyboardType="decimal-pad"
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: '#de9606',
-                      placeholder: '#6A3805',
-                    }
-                  }}
-                />
-                <TextInput
-                  label="Estoque"
-                  value={formData.stock}
-                  onChangeText={text => setFormData(prev => ({ ...prev, stock: text }))}
-                  keyboardType="number-pad"
-                  style={styles.input}
-                  theme={{
-                    colors: {
-                      primary: '#de9606',
-                      placeholder: '#6A3805',
-                    }
-                  }}
                 />
               </>
             )}
@@ -305,8 +288,9 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
               buttonColor="#de9606"
               textColor="#fff"
               loading={loading}
+              icon="image"
             >
-              Selecionar Imagem
+              {formData.image_url ? 'Trocar Imagem' : 'Selecionar Imagem'}
             </Button>
             <Button
               mode="contained"
