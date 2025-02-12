@@ -6,7 +6,7 @@ Este é o ChoppVerse, um projeto de tecnologia de capacitação da CodeJr. Nossa
 
 Você pode baixar o app ChoppVerse no link abaixo:
 
-[Link para download do app]
+[[Link para download do app]](https://expo.dev/accounts/rafaelrr/projects/codejr/builds/fb008beb-04b9-4a42-9baf-93a8ae022843)
 
 ## Comece agora
 
