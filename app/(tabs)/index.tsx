@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, View } from 'react-native';
+import { FlatList, StyleSheet, Image, TouchableOpacity, ScrollView, View, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -14,20 +14,27 @@ const HomeScreen = () => {
   const { getActivePromotions, loading: promotionsLoading, error, fetchPromotions } = usePromotions();
   const [featuredBeers, setFeaturedBeers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      await fetchPromotions();
+      const beers = await api.getBeers();
+      setFeaturedBeers(beers || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await fetchPromotions();
-        const beers = await api.getBeers();
-        setFeaturedBeers(beers || []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    fetchData();
+  }, []);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
     fetchData();
   }, []);
 
@@ -64,6 +71,13 @@ const HomeScreen = () => {
       <View style={styles.overlay} />
       <FlatList
         data={[]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#fff"
+          />
+        }
         ListHeaderComponent={
           <ThemedView style={styles.innerContainer}>
             <ThemedText type="title" style={styles.title}>Cervejas em Destaque</ThemedText>
