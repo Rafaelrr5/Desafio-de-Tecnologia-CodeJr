@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Pressable } from 'react-native';
 import { Card, List } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
@@ -7,7 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '@/styles/Settings.styles';
 
 const Settings = () => {
-  const settingsOptions = [
+  const settingsOptions: Array<{
+    title: string;
+    icon: string;
+    path?: string;
+    action?: () => void;
+  }> = [
     {
       title: 'Perfil',
       icon: 'person-outline',
@@ -41,15 +46,19 @@ const Settings = () => {
         {settingsOptions.map((option, index) => (
           option.path ? (
             <Link key={index} href={option.path as any} asChild>
-              <TouchableOpacity>
-                <Card style={styles.card}>
-                  <Card.Content style={styles.cardContent}>
-                    <Ionicons name={option.icon as keyof typeof Ionicons.glyphMap} size={24} color="#de9606" />
-                    <Text style={styles.optionText}>{option.title}</Text>
-                    <Ionicons name="chevron-forward" size={24} color="#6d5d58" />
-                  </Card.Content>
-                </Card>
-              </TouchableOpacity>
+              <Pressable
+                style={styles.card}
+                android_ripple={{ 
+                  color: 'rgba(0,0,0,0.05)',
+                  borderless: false,
+                }}
+              >
+                <View style={styles.cardContent}>
+                  <Ionicons name={option.icon as keyof typeof Ionicons.glyphMap} size={24} color="#de9606" />
+                  <Text style={styles.optionText}>{option.title}</Text>
+                  <Ionicons name="chevron-forward" size={24} color="#6d5d58" />
+                </View>
+              </Pressable>
             </Link>
           ) : (
             <TouchableOpacity key={index} onPress={option.action}>

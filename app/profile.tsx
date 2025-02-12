@@ -1,47 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Header } from '@/components/Header';
 import { profileStyles as styles } from '@/styles/profileStyles';
+import { router } from 'expo-router';
+
+interface UserData {
+  email: string;
+  name?: string;
+}
 
 export default function ProfileScreen() {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserProfile = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('@user');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUserEmail(userData.user?.email || userData.email);
-        }
-      } catch (error) {
-        console.error('Error loading profile from storage:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadUserProfile();
   }, []);
 
+  const loadUserProfile = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem('@user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUserData({
+          email: parsed.user?.email || parsed.email,
+          name: parsed.user?.name || 'Usuário',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar perfil:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Header title="Perfil" showBack />
+        <View style={styles.content}>
+          <Text>Carregando...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Perfil" />
-      <ThemedView style={styles.content}>
-        {loading ? (
-          <ThemedText>Carregando...</ThemedText>
-        ) : (
-          <View style={styles.infoContainer}>
-            <ThemedText style={styles.label}>Email:</ThemedText>
-            <ThemedText style={styles.email}>{userEmail}</ThemedText>
+      <Header title="Perfil" showBack />
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <Text style={styles.header}>Informações Pessoais</Text>
+          
+          <View style={styles.section}>
+            <Text style={styles.label}>Nome</Text>
+            <Text style={styles.value}>{userData?.name}</Text>
           </View>
-        )}
-      </ThemedView>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Email</Text>
+            <Text style={styles.value}>{userData?.email}</Text>
+          </View>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }

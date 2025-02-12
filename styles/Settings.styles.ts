@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { shadows } from './constants/shadows';
 
 export const styles = StyleSheet.create({
   safeArea: {
@@ -11,11 +12,7 @@ export const styles = StyleSheet.create({
   header: {
     padding: 16,
     backgroundColor: '#fff',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    ...shadows.medium,
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -33,13 +30,17 @@ export const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
-    elevation: 2,
     backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    ...shadows.default,
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
+    paddingLeft: 8
   },
   optionText: {
     flex: 1,
@@ -64,7 +65,9 @@ export const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 8,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    ...shadows.default,
   },
   accordionItem: {
     backgroundColor: '#fff8ec',
