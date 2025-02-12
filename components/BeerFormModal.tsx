@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Modal, Alert, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Checkbox } from 'react-native-paper';
-import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { styles } from '@/styles/BeerFormModal.styles';
 import { Beer } from '@/types/beer';
@@ -66,33 +65,6 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
       });
     }
   }, [initialData, visible]);
-
-  // Função para selecionar uma imagem da galeria
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Erro', 'Precisamos de permissão para acessar suas fotos');
-      return;
-    }
-
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-      });
-
-      if (!result.canceled && result.assets[0].uri) {
-        setLoading(true);
-        await uploadImage(result.assets[0].uri);
-      }
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível selecionar a imagem');
-      console.error('Image picker error:', error);
-    }
-  };
 
   // Função para fazer upload da imagem selecionada
   const uploadImage = async (uri: string) => {
@@ -281,17 +253,6 @@ export const BeerFormModal = ({ visible, onClose, onSave, initialData }: BeerFor
           </ScrollView>
 
           <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              onPress={pickImage}
-              style={[styles.button, styles.imageButton]}
-              buttonColor="#de9606"
-              textColor="#fff"
-              loading={loading}
-              icon="image"
-            >
-              {formData.image_url ? 'Trocar Imagem' : 'Selecionar Imagem'}
-            </Button>
             <Button
               mode="contained"
               onPress={handleSave}
