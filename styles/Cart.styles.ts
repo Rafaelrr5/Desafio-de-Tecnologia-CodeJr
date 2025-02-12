@@ -47,6 +47,34 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   quantity: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  quantityButton: {
+    backgroundColor: '#D98B00',  // Changed from '#007AFF' to '#D98B00'
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  quantityButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  subtotal: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#666',
+  },
+  quantity: {
     fontSize: 14,
     color: '#666',
   },

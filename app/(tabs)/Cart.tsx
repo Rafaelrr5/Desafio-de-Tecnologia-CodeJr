@@ -7,6 +7,22 @@ import { Beer } from '@/types/beer';
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
 
+  const handleQuantityChange = (beerId: string, currentQuantity: number, change: number) => {
+    const newQuantity = currentQuantity + change;
+    if (newQuantity < 1) {
+      Alert.alert(
+        "Remover item",
+        "Deseja remover este item do carrinho?",
+        [
+          { text: "Cancelar" },
+          { text: "Remover", onPress: () => removeFromCart(beerId) }
+        ]
+      );
+      return;
+    }
+    updateQuantity(beerId, newQuantity);
+  };
+
   const handleCheckout = () => {
     if (items.length === 0) {
       Alert.alert(
@@ -40,7 +56,24 @@ export default function Cart() {
             <View style={styles.details}>
               <Text style={styles.itemName}>{item.beer.name}</Text>
               <Text style={styles.price}>R$ {item.beer.price.toFixed(2)}</Text>
-              <Text style={styles.quantity}>Quantidade: {item.quantity}</Text>
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity 
+                  style={styles.quantityButton}
+                  onPress={() => handleQuantityChange(item.beer.id, item.quantity, -1)}
+                >
+                  <Text style={styles.quantityButtonText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantity}>{item.quantity}</Text>
+                <TouchableOpacity 
+                  style={styles.quantityButton}
+                  onPress={() => handleQuantityChange(item.beer.id, item.quantity, 1)}
+                >
+                  <Text style={styles.quantityButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.subtotal}>
+                Subtotal: R$ {(item.beer.price * item.quantity).toFixed(2)}
+              </Text>
             </View>
             <TouchableOpacity 
               style={styles.removeButton} 
