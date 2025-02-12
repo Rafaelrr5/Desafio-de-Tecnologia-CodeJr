@@ -15,9 +15,7 @@ const ForgotPasswordScreen = ({ }) => {
   return (
     <View style={styles.container}>
       <Image
-        source={{
-          uri: 'https://cdn-icons-png.flaticon.com/512/3064/3064197.png',
-        }}
+        source={require('../assets/images/logo.png')}
         style={styles.image}
       />
       <Text style={styles.title}>Esqueceu sua senha?</Text>
@@ -39,7 +37,7 @@ const ForgotPasswordScreen = ({ }) => {
         <Text style={styles.buttonText}>Enviar</Text>
       </TouchableOpacity>
 
-      <Link href="/(tabs)/Login" asChild>
+      <Link href="/login" asChild>
         <TouchableOpacity>
           <Text style={styles.backToLoginText}>Voltar para o login</Text>
         </TouchableOpacity>

@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, runOnJS } from 'react-native-reanimated';
 import { api } from '@/services/api';
 import { Beer } from '../types/beer';
 import { useCart } from '@/contexts/cartContext';
@@ -24,9 +24,10 @@ export default function BeerDetailsModal() {
   const [quantity, setQuantity] = useState(1);
   const translateY = useSharedValue(0);
   const { addToCart } = useCart();
+  const [isDismissing, setIsDismissing] = useState(false);
 
   useEffect(() => {
-    /**
+    /*
      Carrega os detalhes da cerveja a partir do ID,
      Atualiza o estado com os dados recebidos da API e
      Usa uma imagem padrão caso a cerveja não tenha imagem
@@ -54,10 +55,17 @@ export default function BeerDetailsModal() {
     loadBeer();
   }, [beerId]);
 
-  /**
+  /*
    Gerencia o gesto de arrastar para baixo
    Permite fechar o modal quando o usuário arrasta além do limite
    */
+  const closeModal = () => {
+    if (!isDismissing) {
+      setIsDismissing(true);
+      router.back();
+    }
+  };
+
   const gesture = Gesture.Pan()
     .onUpdate((event) => {
       if (event.translationY > 0) {
@@ -66,12 +74,14 @@ export default function BeerDetailsModal() {
     })
     .onEnd((event) => {
       if (event.translationY > DISMISS_THRESHOLD) {
-        router.back();
+        runOnJS(closeModal)();
       } else {
-        translateY.value = withSpring(0);
+        translateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 90
+        });
       }
-    })
-    .simultaneousWithExternalGesture(Gesture.Native());
+    });
 
   const rStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -114,7 +124,7 @@ export default function BeerDetailsModal() {
         <Animated.View style={[styles.container, rStyle]}>
           <TouchableOpacity 
             style={styles.closeButton} 
-            onPress={() => router.back()}
+            onPress={closeModal}
           >
             <Ionicons name="close" size={24} color="#6A3805" />
           </TouchableOpacity>
@@ -128,7 +138,7 @@ export default function BeerDetailsModal() {
           >
             <Image 
               source={{ 
-                uri: beer.image || DEFAULT_BEER_IMAGE,
+                uri: beer.image_url || DEFAULT_BEER_IMAGE,
                 cache: 'reload'
               }} 
               style={styles.beerImage}
@@ -138,15 +148,14 @@ export default function BeerDetailsModal() {
             <View style={styles.content}>
               <Text style={styles.title}>{beer.name}</Text>
               <Text style={styles.type}>{beer.type}</Text>
-              <Text style={styles.description}>{beer.description}</Text>
+              <Text style={styles.description}>{beer.description || 'Sem descrição disponível'}</Text>
 
               <View style={styles.detailsGrid}>
                 <DetailItem label="Teor Alcoólico" value={`${beer.alcohol}%`} />
-                <DetailItem label="IBU" value={beer.ibu.toString()} />
-                <DetailItem label="Temperatura" value={`${beer.temperature}°C`} />
-                <DetailItem label="Volume" value={`${beer.volume}ml`} />
-                <DetailItem label="Cor" value={beer.color} />
-                <DetailItem label="Cervejaria" value={beer.brewery} />
+                <DetailItem label="IBU" value={beer.ibu?.toString() || 'N/A'} />
+                <DetailItem label="Temperatura" value={beer.temperature ? `${beer.temperature}°C` : 'N/A'} />
+                <DetailItem label="Volume" value={beer.volume ? `${beer.volume}ml` : 'N/A'} />
+                <DetailItem label="Cervejaria" value={beer.brewery || 'N/A'} />
               </View>
 
               <View style={styles.footer}>

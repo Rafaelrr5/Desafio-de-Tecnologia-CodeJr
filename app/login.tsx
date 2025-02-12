@@ -38,9 +38,7 @@ export default function Login() {
   return (
     <View style={loginStyles.container}>
       <Image
-        source={{
-          uri: 'https://cdn-icons-png.flaticon.com/512/3064/3064197.png',
-        }}
+        source={require('../assets/images/logo.png')}
         style={loginStyles.image}
       />
       <Text style={loginStyles.title}>Bem-vindo de volta!</Text>

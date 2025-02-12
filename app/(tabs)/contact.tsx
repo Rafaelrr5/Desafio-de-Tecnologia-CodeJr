@@ -18,14 +18,14 @@ const ContactScreen = () => {
         <View style={styles.infoRow}>
           <FontAwesome name="envelope" size={20} color="#de9606" />
           <TouchableOpacity onPress={() => Linking.openURL('mailto:faelrribeiro3@gmail.com')}>
-            <Text style={styles.infoText}>contato@cervejaria.com</Text>
+            <Text style={styles.emailText}>cervejaria@choppverse.com</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoRow}>
           <FontAwesome name="phone" size={20} color="#de9606" />
-          <TouchableOpacity onPress={() => Linking.openURL('tel:+553212345678')}>
-            <Text style={styles.infoText}>(32) 1234-5678</Text>
+          <TouchableOpacity onPress={() => Linking.openURL('tel:+5532988767327')}>
+            <Text style={styles.phoneText}>(32) 1234-5678</Text>
           </TouchableOpacity>
         </View>
 

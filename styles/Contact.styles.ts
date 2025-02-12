@@ -26,6 +26,18 @@ export const styles = StyleSheet.create({
     marginLeft: 10,
     color: '#333',
   },
+  emailText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#0645AD',
+    textDecorationLine: 'underline',
+  },
+  phoneText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#0645AD',
+    textDecorationLine: 'underline',
+  },
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

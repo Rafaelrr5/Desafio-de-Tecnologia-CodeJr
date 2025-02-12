@@ -45,9 +45,7 @@ export default function Register() {
   return (
     <View style={styles.container}>
       <Image
-        source={{
-          uri: 'https://cdn-icons-png.flaticon.com/512/3064/3064197.png',
-        }}
+        source={require('../assets/images/logo.png')}
         style={styles.image}
       />
       <Text style={styles.title}>Criar Conta</Text>

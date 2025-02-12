@@ -1,10 +1,28 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { useCart } from '@/contexts/cartContext';
 import { styles } from '@/styles/Cart.styles';
+import { Beer } from '@/types/beer';
 
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, getTotalPrice } = useCart();
+  const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+
+  const handleCheckout = () => {
+    if (items.length === 0) {
+      Alert.alert(
+        "Carrinho Vazio",
+        "Adicione produtos ao carrinho para finalizar a compra.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Compra Finalizada",
+      "Sua compra foi realizada com sucesso!",
+      [{ text: "OK", onPress: () => clearCart() }]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -15,7 +33,10 @@ export default function Cart() {
         keyExtractor={(item) => item.beer.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Image source={{ uri: item.beer.image }} style={styles.image} />
+            <Image 
+              source={{ uri: item.beer.image_url ?? undefined }} 
+              style={styles.image} 
+            />
             <View style={styles.details}>
               <Text style={styles.itemName}>{item.beer.name}</Text>
               <Text style={styles.price}>R$ {item.beer.price.toFixed(2)}</Text>
@@ -35,7 +56,7 @@ export default function Cart() {
         <Text style={styles.totalText}>
           Total: R$ {getTotalPrice().toFixed(2)}
         </Text>
-        <TouchableOpacity style={styles.checkoutButton}>
+        <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
           <Text style={styles.checkoutText}>Finalizar Compra</Text>
         </TouchableOpacity>
       </View>
